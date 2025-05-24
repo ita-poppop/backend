@@ -13,7 +13,7 @@ import java.util.List;
 @Table(name = "review")
 @Getter
 @NoArgsConstructor(access = AccessLevel.PROTECTED)
-@ToString(exclude = {"member", "popUp"})
+@ToString(exclude = {"member", "popup"})
 public class Review extends BaseEntity {
 
     @Id

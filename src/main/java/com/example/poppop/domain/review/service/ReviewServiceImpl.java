@@ -25,7 +25,7 @@ public class ReviewServiceImpl implements ReviewService {
 
     private final ReviewRepository reviewRepository;
     private final MemberRepository memberRepository;
-    private final PopupRepository popUpRepository;
+    private final PopupRepository popupRepository;
 
     @Override
     @Transactional
@@ -38,7 +38,7 @@ public class ReviewServiceImpl implements ReviewService {
         Member member = memberRepository.findById(dto.memberId())
                 .orElseThrow(() -> new CustomException(ReviewErrorCode.MEMBER_NOT_FOUND));
 
-        Popup popup = popUpRepository.findById(popupId)
+        Popup popup = popupRepository.findById(popupId)
                 .orElseThrow(() -> new CustomException(ReviewErrorCode.POPUP_NOT_FOUND));
 
         Review review = Review.builder()
@@ -57,10 +57,10 @@ public class ReviewServiceImpl implements ReviewService {
     @Override
     public List<ReviewResponse> findAllByPopup(Long popupId) {
 
-        PopUp popUp = popUpRepository.findById(popupId)
+        Popup popup = popupRepository.findById(popupId)
                 .orElseThrow(() -> new CustomException(ReviewErrorCode.POPUP_NOT_FOUND));
 
-        return reviewRepository.findByPopUpAndIsDeletedFalseOrderByCreatedAtDesc(popUp)
+        return reviewRepository.findByPopUpAndIsDeletedFalseOrderByCreatedAtDesc(popup)
                 .stream()
                 .map(ReviewResponse::from)
                 .toList();
