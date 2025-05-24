@@ -1,6 +1,6 @@
 package com.example.poppop.domain.popup.service;
 
-import com.example.poppop.domain.memeber.entity.CustomOAuth2User;
+import com.example.poppop.domain.member.entity.CustomOAuth2User;
 import com.example.poppop.domain.popup.dto.PopupDetailDto;
 import com.example.poppop.domain.popup.dto.PopupPlannedDto;
 import com.example.poppop.domain.popup.dto.PopupSearchDto;
