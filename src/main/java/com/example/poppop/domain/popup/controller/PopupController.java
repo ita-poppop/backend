@@ -71,6 +71,6 @@ public class PopupController {
             @RequestParam @Valid Integer page,
             @RequestParam @Valid Integer size
     ) {
-
+        popupService.getSearchedNearbyPopups(popupLocationRequestDto, page, size);
     }*/
 }

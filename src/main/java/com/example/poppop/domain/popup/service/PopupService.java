@@ -1,15 +1,14 @@
 package com.example.poppop.domain.popup.service;
 
 import com.example.poppop.domain.memeber.entity.CustomOAuth2User;
-import com.example.poppop.domain.popup.dto.PopupDetailDto;
-import com.example.poppop.domain.popup.dto.PopupPlannedDto;
-import com.example.poppop.domain.popup.dto.PopupSearchDto;
-import com.example.poppop.domain.popup.dto.PopupTrendDto;
+import com.example.poppop.domain.popup.dto.*;
+import com.example.poppop.domain.popup.dto.request.PopupLocationRequestDto;
 import com.example.poppop.domain.popup.dto.request.PopupSearchRequestDto;
 import com.example.poppop.domain.popup.entity.Popup;
 import com.example.poppop.domain.popup.repository.PopupRepository;
 import com.example.poppop.global.error.GlobalErrorCode;
 import com.example.poppop.global.error.exception.CustomException;
+import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.cache.annotation.Cacheable;
@@ -19,6 +18,7 @@ import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import java.math.BigDecimal;
 import java.time.Duration;
 import java.time.LocalDate;
 import java.util.Arrays;
@@ -34,6 +34,7 @@ public class PopupService {
     private final PopupRepository popupRepository;
     private final RedisTemplate<String, String> redisTemplate;
     private final PopupRedisService popupRedisService;
+    private final PopupGeoService popupGeoService;
 
     // 팝업 상세 조회
     public PopupDetailDto getDetailPopup(Long id) {
@@ -125,6 +126,24 @@ public class PopupService {
                 .map(PopupSearchDto::from)
                 .collect(Collectors.toList());
     }
+ /*   // 팝업 검색 위치 주위 팝업 반환
+    public List<PopupSearchedNearbyDto> getSearchedNearbyPopups(
+            PopupLocationRequestDto popupLocationRequestDto,
+            @Valid Integer page,
+            @Valid Integer size) {
+        PageRequest pageable = PageRequest.of(page - 1, size);
+        try {
+            BigDecimal[] latLng = popupGeoService.getLatLng(popupLocationRequestDto.getAddress());
+            BigDecimal longitude = latLng[0];   // x (위도)
+            BigDecimal latitude = latLng[1];  // y (경도)
+
+
+        }catch (Exception e){
+
+        }
+
+
+    }*/
     //
 
 }

@@ -72,8 +72,8 @@ public class PopupGeoService {
             try {
                 BigDecimal[] latLng = getLatLng(popup.getLocation());
                 if (latLng != null && latLng.length > 1) {
-                    popup.setLatitude(latLng[0]);
-                    popup.setLongitude(latLng[1]);
+                    popup.setLongitude(latLng[0]); // 경도 x
+                    popup.setLatitude(latLng[1]); // 위도 y
                 } else {
                     //log.warn("위경도 변환 실패: id={}, 주소={}", popup.getId(), popup.getLocation());
                 }
