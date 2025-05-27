@@ -1,3 +1,7 @@
 package com.example.poppop.domain.review.dto.request;
 
-public record ReviewUpdateRequest(String content) {}
+import jakarta.validation.constraints.NotBlank;
+
+public record ReviewUpdateRequest(
+        @NotBlank String content
+) {}

@@ -58,4 +58,11 @@ public class ApiResponse<T> {
                 .message(message)
                 .build();
     }
+
+    public static ApiResponse<Void> successMessage(String message) {
+        return ApiResponse.<Void>builder()
+                .code(SUCCESS_CODE)
+                .message(message)
+                .build();
+    }
 }

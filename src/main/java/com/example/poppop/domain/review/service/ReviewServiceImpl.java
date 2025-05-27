@@ -1,5 +1,6 @@
 package com.example.poppop.domain.review.service;
 
+import com.example.poppop.domain.member.entity.CustomOAuth2User;
 import com.example.poppop.domain.member.entity.Member;
 import com.example.poppop.domain.member.repository.MemberRepository;
 import com.example.poppop.domain.popup.entity.Popup;
@@ -13,6 +14,9 @@ import com.example.poppop.domain.review.error.ReviewErrorCode;
 import com.example.poppop.domain.review.repository.ReviewRepository;
 import com.example.poppop.global.error.exception.CustomException;
 import lombok.RequiredArgsConstructor;
+import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Pageable;
+import org.springframework.data.domain.Sort;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -29,13 +33,11 @@ public class ReviewServiceImpl implements ReviewService {
 
     @Override
     @Transactional
-    public ReviewResponse create(Long popupId, ReviewCreateRequest dto) {
+    public void create(Long popupId, ReviewCreateRequest dto, CustomOAuth2User oauth2User) {
 
-        if (dto.imageUrls() == null || dto.imageUrls().isEmpty()) {
-            throw new CustomException(ReviewErrorCode.IMAGE_REQUIRED);
-        }
+        Long memberId = oauth2User.getId();
 
-        Member member = memberRepository.findById(dto.memberId())
+        Member member = memberRepository.findById(memberId)
                 .orElseThrow(() -> new CustomException(ReviewErrorCode.MEMBER_NOT_FOUND));
 
         Popup popup = popupRepository.findById(popupId)
@@ -51,16 +53,18 @@ public class ReviewServiceImpl implements ReviewService {
                 review.addImage(ReviewImage.of(url, review)));
 
         reviewRepository.save(review);
-        return ReviewResponse.from(review);
     }
 
     @Override
-    public List<ReviewResponse> findAllByPopup(Long popupId) {
+    public List<ReviewResponse> findAllByPopup(Long popupId, int page, int size) {
 
         Popup popup = popupRepository.findById(popupId)
                 .orElseThrow(() -> new CustomException(ReviewErrorCode.POPUP_NOT_FOUND));
 
-        return reviewRepository.findByPopUpAndIsDeletedFalseOrderByCreatedAtDesc(popup)
+        Pageable pageable = PageRequest.of(page, size, Sort.by(Sort.Direction.DESC, "createdAt"));
+
+        return reviewRepository
+                .findByPopupAndIsDeletedFalseOrderByCreatedAtDesc(popup, pageable)
                 .stream()
                 .map(ReviewResponse::from)
                 .toList();
@@ -68,21 +72,28 @@ public class ReviewServiceImpl implements ReviewService {
 
     @Override
     @Transactional
-    public ReviewResponse update(Long reviewId, ReviewUpdateRequest dto) {
+    public void update(Long reviewId, ReviewUpdateRequest dto, CustomOAuth2User oauth2User) {
 
         Review review = reviewRepository.findById(reviewId)
                 .orElseThrow(() -> new CustomException(ReviewErrorCode.REVIEW_NOT_FOUND));
 
+        if (!review.getMember().getId().equals(oauth2User.getId())) {
+            throw new CustomException(ReviewErrorCode.INVALID_PERMISSION);
+        }
+
         review.updateContent(dto.content());
-        return ReviewResponse.from(review);
     }
 
     @Override
     @Transactional
-    public void delete(Long reviewId) {
+    public void delete(Long reviewId, CustomOAuth2User oauth2User) {
 
         Review review = reviewRepository.findById(reviewId)
                 .orElseThrow(() -> new CustomException(ReviewErrorCode.REVIEW_NOT_FOUND));
+
+        if (!review.getMember().getId().equals(oauth2User.getId())) {
+            throw new CustomException(ReviewErrorCode.INVALID_PERMISSION);
+        }
 
         review.softDelete();
     }

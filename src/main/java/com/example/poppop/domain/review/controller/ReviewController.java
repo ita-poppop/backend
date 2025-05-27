@@ -1,5 +1,6 @@
 package com.example.poppop.domain.review.controller;
 
+import com.example.poppop.domain.member.entity.CustomOAuth2User;
 import com.example.poppop.domain.review.dto.request.ReviewCreateRequest;
 import com.example.poppop.domain.review.dto.request.ReviewUpdateRequest;
 import com.example.poppop.domain.review.dto.response.ReviewResponse;
@@ -7,6 +8,7 @@ import com.example.poppop.domain.review.service.ReviewService;
 import com.example.poppop.global.common.ApiResponse;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
+import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
@@ -19,34 +21,41 @@ public class ReviewController {
     private final ReviewService reviewService;
 
     @PostMapping
-    public ApiResponse<ReviewResponse> createReview(
+    public ApiResponse<Void> createReview(
             @PathVariable Long popupId,
-            @RequestBody @Valid ReviewCreateRequest request) {
+            @RequestBody @Valid ReviewCreateRequest request,
+            @AuthenticationPrincipal CustomOAuth2User oauth2User) {
 
-        return ApiResponse.success(reviewService.create(popupId, request),
-                "리뷰가 등록되었습니다.");
+        reviewService.create(popupId, request, oauth2User);
+        return ApiResponse.successMessage("리뷰가 등록되었습니다.");
     }
 
     @GetMapping
-    public ApiResponse<List<ReviewResponse>> getReviews(@PathVariable Long popupId) {
+    public ApiResponse<List<ReviewResponse>> getReviews(
+            @PathVariable Long popupId,
+            @RequestParam @Valid Integer page,
+            @RequestParam @Valid Integer size) {
 
-        return ApiResponse.success(reviewService.findAllByPopup(popupId));
+        return ApiResponse.success(reviewService.findAllByPopup(popupId, page, size));
     }
 
     @PostMapping("/{reviewId}/patch")
-    public ApiResponse<ReviewResponse> updateReview(
+    public ApiResponse<Void> updateReview(
             @PathVariable Long reviewId,
-            @RequestBody @Valid ReviewUpdateRequest request) {
+            @RequestBody @Valid ReviewUpdateRequest request,
+            @AuthenticationPrincipal CustomOAuth2User oauth2User) {
 
-        return ApiResponse.success(reviewService.update(reviewId, request),
-                "리뷰가 수정되었습니다.");
+        reviewService.update(reviewId, request, oauth2User);
+        return ApiResponse.successMessage("리뷰가 수정되었습니다.");
     }
 
     @PostMapping("/{reviewId}/delete")
-    public ApiResponse<Object> deleteReview(@PathVariable Long reviewId) {
+    public ApiResponse<Void> deleteReview(
+            @PathVariable Long reviewId,
+            @AuthenticationPrincipal CustomOAuth2User oauth2User) {
 
-        reviewService.delete(reviewId);
-        return ApiResponse.success("리뷰가 삭제되었습니다.");
+        reviewService.delete(reviewId, oauth2User);
+        return ApiResponse.successMessage("리뷰가 삭제되었습니다.");
     }
 }
 

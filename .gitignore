@@ -42,6 +42,3 @@ mysql_data/
 
 # 환경설정 파일
 .env*
-docker-compose.yml
-src/main/resources/application.yml
->>>>>>> Stashed changes

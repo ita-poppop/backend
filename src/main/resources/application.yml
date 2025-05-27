@@ -13,46 +13,28 @@ spring:
   application:
     name: PopPop
 
-#  data:
-#    redis:
-#      host: localhost
-#      port: 6379
-
-  datasource:
-    driver-class-name: com.mysql.cj.jdbc.Driver
-    url: jdbc:mysql://localhost:13306/poppop
-    username: ${MYSQLDB_USERNAME}
-    password: ${MYSQLDB_PASSWORD}
-
   jpa:
+    show-sql: true
     hibernate:
       ddl-auto: update
-    show-sql: true
     properties:
       hibernate:
         format_sql: true
-    open-in-view: false
+        dialect: org.hibernate.dialect.MySQL8Dialect
 
-#  security:
-#    oauth2:
-#      client:
-#        registration:
-#          kakao:
-#            client-id: ${KAKAO_OAUTH_CLIENT_ID}
-#            client-secret: ${KAKAO_OAUTH_CLIENT_SECRET}
-#            authorization-grant-type: authorization_code
-#            redirect-uri: https://boheommong.site/login/oauth2/code/kakao
-#            client-authentication-method: client_secret_post
-#            scope:
-#              - profile_nickname
-#              - account_email
-#        provider:
-#          kakao:
-#            authorization-uri: https://kauth.kakao.com/oauth/authorize
-#            token-uri: https://kauth.kakao.com/oauth/token
-#            user-info-uri: https://kapi.kakao.com/v2/user/me
-#            user-name-attribute: id
-#
-#jwt:
-#  secret-key: ${JWT_SECRET_KEY_CODE}
-#  issuer: ${JWT_ISSUER}
+  datasource:
+    driver-class-name: com.mysql.cj.jdbc.Driver
+    #url: jdbc:mysql://my-db:3307/poppop
+    url: jdbc:mysql://localhost:3306/poppop
+    username: ${MYSQLDB_USERNAME}
+    password: ${MYSQLDB_PASSWORD}
+
+  data:
+    redis:
+      host: my-cache-server
+      port: 6379
+
+naver:
+  geocoding:
+    client-id: 네이버 API Key ID
+    client-secret: 네이버 API Key
