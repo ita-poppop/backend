@@ -5,6 +5,10 @@ import com.example.poppop.domain.review.dto.request.ReviewCreateRequest;
 import com.example.poppop.domain.review.dto.request.ReviewUpdateRequest;
 import com.example.poppop.domain.review.dto.response.ReviewResponse;
 import com.example.poppop.domain.review.service.ReviewService;
+import com.example.poppop.domain.review.swagger.DeleteReview;
+import com.example.poppop.domain.review.swagger.GetPopupReviews;
+import com.example.poppop.domain.review.swagger.PostReview;
+import com.example.poppop.domain.review.swagger.UpdateReview;
 import com.example.poppop.global.common.ApiResponse;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
@@ -20,6 +24,7 @@ public class ReviewController {
 
     private final ReviewService reviewService;
 
+    @PostReview
     @PostMapping
     public ApiResponse<Void> createReview(
             @PathVariable Long popupId,
@@ -30,6 +35,7 @@ public class ReviewController {
         return ApiResponse.successMessage("리뷰가 등록되었습니다.");
     }
 
+    @GetPopupReviews
     @GetMapping
     public ApiResponse<List<ReviewResponse>> getReviews(
             @PathVariable Long popupId,
@@ -39,6 +45,7 @@ public class ReviewController {
         return ApiResponse.success(reviewService.findAllByPopup(popupId, page, size));
     }
 
+    @UpdateReview
     @PostMapping("/{reviewId}/patch")
     public ApiResponse<Void> updateReview(
             @PathVariable Long reviewId,
@@ -49,6 +56,7 @@ public class ReviewController {
         return ApiResponse.successMessage("리뷰가 수정되었습니다.");
     }
 
+    @DeleteReview
     @PostMapping("/{reviewId}/delete")
     public ApiResponse<Void> deleteReview(
             @PathVariable Long reviewId,
