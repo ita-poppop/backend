@@ -5,16 +5,21 @@ services:
       - 8080:8080
     # my-db의 컨테이너가 생성되고 healthy 하다고 판단 될 때, 해당 컨테이너를 생성한다.
     depends_on:
-      my-db:
+      poppop-db:
         condition: service_healthy
-      my-cache-server:
+      poppop-cache:
         condition: service_healthy
 
-  my-db:
+  poppop-db:
     image: mysql
+    container_name: poppop-mysql
+    restart: always
     environment:
-      MYSQL_ROOT_PASSWORD: rkwhr123
-      MYSQL_DATABASE: mydb # MySQL 최초 실행 시 mydb라는 데이터베이스를 생성해준다.
+      MYSQL_ROOT_PASSWORD: ${MYSQLDB_ROOT_PASSWORD}
+      MYSQL_DATABASE: "poppop"
+      MYSQL_USER: ${MYSQLDB_USERNAME}
+      MYSQL_PASSWORD: ${MYSQLDB_PASSWORD}
+      TZ: "Asia/Seoul" # MySQL 최초 실행 시 mydb라는 데이터베이스를 생성해준다.
     volumes:
       - ./mysql_data:/var/lib/mysql
     ports:
@@ -24,7 +29,7 @@ services:
       interval: 5s # 5초 간격으로 체크
       retries: 10 # 10번까지 재시도
 
-  my-cache-server:
+  poppop-cache:
     image: redis
     ports:
       - 6379:6379

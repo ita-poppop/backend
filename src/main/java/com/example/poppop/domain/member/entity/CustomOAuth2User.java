@@ -1,4 +1,4 @@
-package com.example.poppop.domain.memeber.entity;
+package com.example.poppop.domain.member.entity;
 
 import lombok.Getter;
 import org.springframework.security.core.GrantedAuthority;
