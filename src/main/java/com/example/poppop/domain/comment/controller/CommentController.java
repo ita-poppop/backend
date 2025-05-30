@@ -45,7 +45,7 @@ public class CommentController {
         return ApiResponse.successMessage("댓글이 수정되었습니다.");
     }
 
-    @PostMapping("/{commentId/delete}")
+    @PostMapping("/{commentId}/delete")
     public ApiResponse<Void> deleteComment(
             @PathVariable Long commentId,
             @AuthenticationPrincipal CustomOAuth2User oauth2user) {
