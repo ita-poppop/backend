@@ -1,4 +1,4 @@
-package com.example.poppop.global.response;
+package com.example.poppop.global.common;
 
 
 import com.example.poppop.global.error.BaseError;
@@ -55,6 +55,13 @@ public class ApiResponse<T> {
     public static <T> ApiResponse<T> fail(BaseError error, String message) {
         return ApiResponse.<T>builder()
                 .code(error.getCode())
+                .message(message)
+                .build();
+    }
+
+    public static ApiResponse<Void> successMessage(String message) {
+        return ApiResponse.<Void>builder()
+                .code(SUCCESS_CODE)
                 .message(message)
                 .build();
     }

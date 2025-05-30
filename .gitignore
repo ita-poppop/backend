@@ -35,3 +35,10 @@ out/
 
 ### VS Code ###
 .vscode/
+<<<<<<< Updated upstream
+application.yml
+mysql_data/
+=======
+
+# 환경설정 파일
+.env*

@@ -1,0 +1,40 @@
+# 추가 예시(필요에 따라 사용)
+server:
+  port: 8080
+
+logging:
+  level:
+    org.hibernate.SQL: DEBUG
+    org.hibernate.type.descriptor.sql.BasicBinder: TRACE
+
+spring:
+  config:
+    import: optional:file:.env[.properties]
+  application:
+    name: PopPop
+
+  jpa:
+    show-sql: true
+    hibernate:
+      ddl-auto: update
+    properties:
+      hibernate:
+        format_sql: true
+        dialect: org.hibernate.dialect.MySQL8Dialect
+
+  datasource:
+    driver-class-name: com.mysql.cj.jdbc.Driver
+    #url: jdbc:mysql://my-db:3307/poppop
+    url: jdbc:mysql://poppop-db1.cf4c0w6gqo29.ap-northeast-2.rds.amazonaws.com:3306/poppop
+    username: ${MYSQLDB_USERNAME}
+    password: ${MYSQLDB_PASSWORD}
+
+  data:
+    redis:
+      host: my-cache-server
+      port: 6379
+
+naver:
+  geocoding:
+    client-id: 네이버 API Key ID
+    client-secret: 네이버 API Key
