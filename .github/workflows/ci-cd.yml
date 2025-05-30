@@ -66,8 +66,17 @@ jobs:
           host: ${{ secrets.EC2_HOST }}
           username: ${{ secrets.EC2_USER }}
           key: ${{ secrets.EC2_SSH_KEY }}
+          envs: MYSQLDB_USERNAME,MYSQLDB_PASSWORD,MYSQLDB_ROOT_PASSWORD
           script: |
             docker pull ${{ secrets.DOCKERHUB_USERNAME }}/ita-backend:latest
+
             docker stop ita-backend || true
-            docker rm ita-backend || true
-            docker run -d --name ita-backend -p 8080:8080 ${{ secrets.DOCKERHUB_USERNAME }}/ita-backend:latest
+            docker rm   ita-backend || true
+
+            docker run -d \
+              --name ita-backend \
+              -p 8080:8080 \
+              -e MYSQLDB_USERNAME=$MYSQLDB_USERNAME \
+              -e MYSQLDB_PASSWORD=$MYSQLDB_PASSWORD \
+              -e MYSQLDB_ROOT_PASSWORD=$MYSQLDB_ROOT_PASSWORD \
+              ${{ secrets.DOCKERHUB_USERNAME }}/ita-backend:latest
