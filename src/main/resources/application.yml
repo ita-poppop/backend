@@ -25,7 +25,7 @@ spring:
   datasource:
     driver-class-name: com.mysql.cj.jdbc.Driver
     #url: jdbc:mysql://my-db:3307/poppop
-    url: jdbc:mysql://localhost:3306/poppop
+    url: jdbc:mysql://poppop-db1.cf4c0w6gqo29.ap-northeast-2.rds.amazonaws.com:3306/poppop
     username: ${MYSQLDB_USERNAME}
     password: ${MYSQLDB_PASSWORD}
 
