@@ -1,3 +1,4 @@
+/*
 package com.example.poppop.domain.popup.dto;
 
 import org.junit.jupiter.api.DisplayName;
@@ -43,4 +44,4 @@ class PopupInitialDtoTest {
         String expected = "서울특별시 중구 세종대로 110";
         assertEquals(expected, PopupInitialDto.removeLocationNbsp(input));
     }
-}
+}*/

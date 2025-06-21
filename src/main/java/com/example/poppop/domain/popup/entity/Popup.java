@@ -7,6 +7,7 @@ import lombok.Getter;
 import lombok.NoArgsConstructor;
 
 import java.math.BigDecimal;
+import java.time.LocalDate;
 
 @Entity
 @Getter
@@ -16,8 +17,10 @@ public class Popup {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
     private String title;
-    private String startDate;
-    private String endDate;
+    @Column(name = "start_date")
+    private LocalDate startDate;
+    @Column(name = "end_date")
+    private LocalDate endDate;
     private String comment;
     @Column(columnDefinition = "TEXT")
     private String detail;
@@ -30,7 +33,7 @@ public class Popup {
     private BigDecimal longitude;
 
     @Builder
-    public Popup(String title, String startDate, String endDate, String comment, String detail, String image, String location, int viewCount, BigDecimal latitude, BigDecimal longitude) {
+    public Popup(String title, LocalDate startDate, LocalDate endDate, String comment, String detail, String image, String location, int viewCount, BigDecimal latitude, BigDecimal longitude) {
         this.title = title;
         this.startDate = startDate;
         this.endDate = endDate;
