@@ -6,8 +6,12 @@ on:
   push:
     branches: [develop]
 
-jobs:
+# 레지스트리 태그를 한 곳에 모아두기
+env:
+  IMAGE_NAME: ${{ secrets.DOCKERHUB_USERNAME }}/ita-backend:latest
 
+jobs:
+# ───────────────────────── CI (PR용 빌드·테스트) ─────────────────────────
   ci:
     if: github.event_name == 'pull_request'
     runs-on: ubuntu-latest
@@ -29,11 +33,13 @@ jobs:
       - name: Run tests
         run: ./gradlew test
 
+# ───────────────────────── CD (develop 브랜치 푸시 시) ─────────────────────────
   cd:
     if: github.event_name == 'push' && github.ref == 'refs/heads/develop'
     runs-on: ubuntu-latest
 
     steps:
+      # 1) 소스 체크아웃 + JAR 빌드
       - uses: actions/checkout@v3
 
       - name: Set up JDK
@@ -42,11 +48,15 @@ jobs:
           java-version: '17'
           distribution: 'temurin'
 
+      - name: Grant execute permission for gradlew
+        run: chmod +x gradlew
+
       - name: Build
         run: ./gradlew build
 
+      # 2) 도커 이미지 빌드 → Docker Hub 푸시
       - name: Build Docker image
-        run: docker build -t ${{ secrets.DOCKERHUB_USERNAME }}/ita-backend:latest .
+        run: docker build -t $IMAGE_NAME .
 
       - name: Log in to Docker Hub
         uses: docker/login-action@v2
@@ -55,16 +65,40 @@ jobs:
           password: ${{ secrets.DOCKERHUB_ACCESS_TOKEN }}
 
       - name: Push Docker image
-        run: docker push ${{ secrets.DOCKERHUB_USERNAME }}/ita-backend:latest
+        run: docker push $IMAGE_NAME
 
-      - name: Deploy on AWS EC2
+      # 3) docker-compose.yml만 EC2로 복사
+      - name: Copy compose to EC2
+        uses: appleboy/scp-action@v0.1.7
+        with:
+          host: ${{ secrets.EC2_HOST }}
+          username: ${{ secrets.EC2_USER }}
+          key: ${{ secrets.EC2_SSH_KEY }}
+          source: "compose.yml"
+          target: "~/poppop"
+
+      # 4) EC2로 배포 (compose pull/up)
+      - name: Deploy to EC2 with Compose
         uses: appleboy/ssh-action@v0.1.7
         with:
           host: ${{ secrets.EC2_HOST }}
           username: ${{ secrets.EC2_USER }}
           key: ${{ secrets.EC2_SSH_KEY }}
+
+          # compose.yml 안에서 ${MYSQLDB_*}, ${DOCKERHUB_USERNAME} 변수를 쓰므로 전달
+          envs: MYSQLDB_USERNAME,MYSQLDB_PASSWORD,MYSQLDB_ROOT_PASSWORD,DOCKERHUB_USERNAME
+
           script: |
-            docker pull ${{ secrets.DOCKERHUB_USERNAME }}/ita-backend:latest
-            docker stop ita-backend || true
-            docker rm ita-backend || true
-            docker run -d --name ita-backend -p 8080:8080 ${{ secrets.DOCKERHUB_USERNAME }}/ita-backend:latest
+            set -e
+            cd ~/poppop
+
+            # 기존 단일 컨테이너(처음 한 번만 있으면) 정리
+            docker stop ita-backend 2>/dev/null || true
+            docker rm   ita-backend 2>/dev/null || true
+
+            # 최신 이미지 가져와 재배치
+            docker compose pull
+            docker compose up -d --remove-orphans
+
+            # 불필요 이미지 정리
+            docker image prune -f --filter dangling=true
