@@ -80,6 +80,12 @@ jobs:
       # 4) EC2로 배포 (compose pull/up)
       - name: Deploy to EC2 with Compose
         uses: appleboy/ssh-action@v0.1.7
+        env:                           # ← 추가
+          MYSQLDB_USERNAME: ${{ secrets.MYSQLDB_USERNAME }}
+          MYSQLDB_PASSWORD: ${{ secrets.MYSQLDB_PASSWORD }}
+          MYSQLDB_ROOT_PASSWORD: ${{ secrets.MYSQLDB_ROOT_PASSWORD }}
+          DOCKERHUB_USERNAME: ${{ secrets.DOCKERHUB_USERNAME }}
+          
         with:
           host: ${{ secrets.EC2_HOST }}
           username: ${{ secrets.EC2_USER }}
