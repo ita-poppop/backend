@@ -4,5 +4,5 @@ import lombok.Getter;
 
 @Getter
 public class PopupLocationRequestDto {
-    private String location;
+    private String address; // ex) 서울시 강남구
 }

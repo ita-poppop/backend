@@ -7,6 +7,8 @@ import org.springframework.data.redis.cache.RedisCacheManager;
 import org.springframework.data.redis.connection.RedisConnectionFactory;
 import org.springframework.data.redis.core.RedisTemplate;
 import org.springframework.data.redis.repository.configuration.EnableRedisRepositories;
+import org.springframework.data.redis.serializer.GenericJackson2JsonRedisSerializer;
+import org.springframework.data.redis.serializer.RedisSerializationContext;
 import org.springframework.data.redis.serializer.StringRedisSerializer;
 
 import java.time.Duration;
@@ -32,15 +34,13 @@ public class RedisConfig {
 
     @Bean
     public RedisCacheManager cacheManager(RedisConnectionFactory connectionFactory) {
-        // 기본 캐시 설정 (예: 만료 없음)
-        RedisCacheConfiguration defaultConfig = RedisCacheConfiguration.defaultCacheConfig();
+        RedisCacheConfiguration defaultConfig = RedisCacheConfiguration.defaultCacheConfig()
+                .serializeValuesWith(RedisSerializationContext.SerializationPair
+                        .fromSerializer(new GenericJackson2JsonRedisSerializer())); //직렬화
 
-        // plannedPopups 캐시만 24시간 TTL 적용
         Map<String, RedisCacheConfiguration> cacheConfigurations = new HashMap<>();
-        cacheConfigurations.put(
-                "plannedPopups", // 캐시 이름
-                RedisCacheConfiguration.defaultCacheConfig().entryTtl(Duration.ofHours(24))
-        );
+        cacheConfigurations.put("plannedPopups", defaultConfig.entryTtl(Duration.ofHours(24)));
+        cacheConfigurations.put("trendPopups", defaultConfig.entryTtl(Duration.ofHours(1)));
 
         return RedisCacheManager.builder(connectionFactory)
                 .cacheDefaults(defaultConfig) // 기본 설정(만료 없음)

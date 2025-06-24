@@ -40,6 +40,6 @@ app:
 
 naver:
   geocoding:
-    client-id: ro8kabizfn
-    client-secret: buhLpIaY3B586tOIFZHlkEoW2UYLOM19jxEADpc7
+    client-id: ${GEOCODING_ID}
+    client-secret: ${GEOCODING_SECRET}
 

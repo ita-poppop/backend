@@ -1,4 +1,4 @@
-name: Create Jira issue
+  name: Create Jira issue
 on:
   issues:
     types:
