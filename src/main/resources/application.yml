@@ -42,4 +42,7 @@ naver:
   geocoding:
     client-id: ${GEOCODING_ID}
     client-secret: ${GEOCODING_SECRET}
+<<<<<<< Updated upstream
 
+=======
+>>>>>>> Stashed changes
