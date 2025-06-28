@@ -1,5 +1,6 @@
 package com.example.poppop.domain.review.service;
 
+import com.example.poppop.domain.comment.repository.CommentRepository;
 import com.example.poppop.domain.member.entity.CustomOAuth2User;
 import com.example.poppop.domain.member.entity.Member;
 import com.example.poppop.domain.member.repository.MemberRepository;
@@ -7,10 +8,12 @@ import com.example.poppop.domain.popup.entity.Popup;
 import com.example.poppop.domain.popup.repository.PopupRepository;
 import com.example.poppop.domain.review.dto.request.ReviewCreateRequest;
 import com.example.poppop.domain.review.dto.request.ReviewUpdateRequest;
+import com.example.poppop.domain.review.dto.response.ReviewDetailResponse;
 import com.example.poppop.domain.review.dto.response.ReviewResponse;
 import com.example.poppop.domain.review.entity.Review;
 import com.example.poppop.domain.review.entity.ReviewImage;
 import com.example.poppop.domain.review.error.ReviewErrorCode;
+import com.example.poppop.domain.review.repository.ReviewLikeRepository;
 import com.example.poppop.domain.review.repository.ReviewRepository;
 import com.example.poppop.global.error.exception.CustomException;
 import lombok.RequiredArgsConstructor;
@@ -30,6 +33,8 @@ public class ReviewServiceImpl implements ReviewService {
     private final ReviewRepository reviewRepository;
     private final MemberRepository memberRepository;
     private final PopupRepository popupRepository;
+    private final ReviewLikeRepository reviewLikeRepository;
+    private final CommentRepository commentRepository;
 
     @Override
     @Transactional
@@ -68,6 +73,28 @@ public class ReviewServiceImpl implements ReviewService {
                 .stream()
                 .map(ReviewResponse::from)
                 .toList();
+    }
+
+    @Override
+    public ReviewDetailResponse findOneReview(Long popupId, Long reviewId) {
+        Popup popup = popupRepository.findById(popupId)
+                .orElseThrow(() -> new CustomException(ReviewErrorCode.POPUP_NOT_FOUND));
+
+        Review review = reviewRepository.findById(reviewId)
+                .orElseThrow(() -> new CustomException(ReviewErrorCode.REVIEW_NOT_FOUND));
+
+        // 리뷰가 그 팝업에 속하는지 검증(Optional)
+        if (!review.getPopup().getId().equals(popup.getId())) {
+            throw new CustomException(ReviewErrorCode.REVIEW_NOT_FOUND);
+        }
+
+        // 좋아요·댓글 카운트 집계
+        long likeCount = reviewLikeRepository
+                .countByReviewAndLikedTrue(review);
+        long commentCount = commentRepository
+                .countByReviewAndParentIsNullAndIsDeletedFalse(review);
+
+        return ReviewDetailResponse.from(review, likeCount, commentCount);
     }
 
     @Override

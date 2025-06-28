@@ -20,4 +20,6 @@ public interface CommentRepository extends JpaRepository<Comment, Long> {
         ORDER BY c.createdAt ASC
     """)
     List<Comment> findRootComments(@Param("review") Review review);
+
+    long countByReviewAndParentIsNullAndIsDeletedFalse(Review review);
 }
