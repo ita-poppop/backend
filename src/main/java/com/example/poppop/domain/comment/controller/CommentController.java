@@ -5,11 +5,9 @@ import com.example.poppop.domain.comment.dto.request.CommentUpdateRequest;
 import com.example.poppop.domain.comment.dto.response.CommentListResponse;
 import com.example.poppop.domain.comment.dto.response.CommentResponse;
 import com.example.poppop.domain.comment.service.CommentService;
-import com.example.poppop.domain.comment.swagger.DeleteComment;
-import com.example.poppop.domain.comment.swagger.GetComments;
-import com.example.poppop.domain.comment.swagger.PostComment;
-import com.example.poppop.domain.comment.swagger.UpdateComment;
+import com.example.poppop.domain.comment.swagger.*;
 import com.example.poppop.domain.member.entity.CustomOAuth2User;
+import com.example.poppop.domain.review.swagger.GetSingleReview;
 import com.example.poppop.global.common.ApiResponse;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
@@ -42,6 +40,7 @@ public class CommentController {
         return ApiResponse.success(commentService.findAllByReview(reviewId));
     }
 
+    @GetSingleComment
     @GetMapping("/{commentId}")
     public ApiResponse<CommentResponse> getComment(
             @PathVariable Long reviewId,
