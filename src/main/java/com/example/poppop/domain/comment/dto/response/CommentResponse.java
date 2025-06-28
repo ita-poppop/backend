@@ -13,17 +13,19 @@ public record CommentResponse(
         LocalDateTime updatedAt,
         List<CommentResponse> children   // 재귀
 ) {
-    public static CommentResponse from(Comment comment) {
+    public static CommentResponse from(com.example.poppop.domain.comment.entity.Comment c) {
+        List<CommentResponse> kids = c.getChildren().stream()
+                .filter(ch -> !ch.getIsDeleted())
+                .map(CommentResponse::from)
+                .toList();
+
         return new CommentResponse(
-                comment.getId(),
-                comment.getContent(),
-                comment.getMember().getUserName(),
-                comment.getCreatedAt(),
-                comment.getUpdatedAt(),
-                comment.getChildren().stream()
-                        .filter(child -> !child.getIsDeleted())
-                        .map(CommentResponse::from)
-                        .toList()
+                c.getId(),
+                c.getContent(),
+                c.getMember().getUserName(),
+                c.getCreatedAt(),
+                c.getUpdatedAt(),
+                kids
         );
     }
 }
