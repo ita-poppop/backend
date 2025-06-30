@@ -37,10 +37,9 @@ public class PopupPlannedDto {
                 .build();
     }
 
-    private static String createDday(String startDate) {
+    private static String createDday(LocalDate startDate) {
         LocalDate today = LocalDate.now(); //2025-05-20
-        LocalDate startDatePars = LocalDate.parse(startDate, DateTimeFormatter.ofPattern("yyyy-MM-dd"));
-        long dDay = ChronoUnit.DAYS.between(today, startDatePars);
+        long dDay = ChronoUnit.DAYS.between(today, startDate);
         return String.valueOf(dDay);
     }
 

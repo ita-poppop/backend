@@ -2,6 +2,7 @@ package com.example.poppop.domain.comment.service;
 
 import com.example.poppop.domain.comment.dto.request.CommentCreateRequest;
 import com.example.poppop.domain.comment.dto.request.CommentUpdateRequest;
+import com.example.poppop.domain.comment.dto.response.CommentListResponse;
 import com.example.poppop.domain.comment.dto.response.CommentResponse;
 import com.example.poppop.domain.comment.entity.Comment;
 import com.example.poppop.domain.comment.error.CommentErrorCode;
@@ -57,15 +58,38 @@ public class CommentServiceImpl implements CommentService {
     }
 
     @Override
-    public List<CommentResponse> findByReview(Long reviewId) {
+    public List<CommentListResponse> findAllByReview(Long reviewId) {
 
         Review review = reviewRepository.findById(reviewId)
                 .orElseThrow(() -> new CustomException(CommentErrorCode.REVIEW_NOT_FOUND));
 
-        return commentRepository.findRootComments(review)
-                .stream()
-                .map(CommentResponse::from)
+        List<Comment> roots = commentRepository.findRootComments(review);
+
+        return roots.stream()
+                .map(c -> new CommentListResponse(
+                        c.getId(),
+                        c.getContent(),
+                        c.getMember().getUserName(),
+                        c.getCreatedAt(),
+                        c.getUpdatedAt(),
+                        // 대댓글 개수만 조회
+                        (int) c.getChildren().stream()
+                                .filter(child -> !child.getIsDeleted())
+                                .count()
+                ))
                 .toList();
+    }
+
+    @Override
+    public CommentResponse findOneComment(Long reviewId, Long commentId) {
+        // 리뷰 존재 검증
+        reviewRepository.findById(reviewId)
+                .orElseThrow(() -> new CustomException(CommentErrorCode.REVIEW_NOT_FOUND));
+
+        Comment comment = commentRepository.findById(commentId)
+                .orElseThrow(() -> new CustomException(CommentErrorCode.COMMENT_NOT_FOUND));
+
+        return CommentResponse.from(comment);
     }
 
     @Override

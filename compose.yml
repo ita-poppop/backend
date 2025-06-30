@@ -9,6 +9,8 @@ services:
       - MYSQLDB_USERNAME=${MYSQLDB_USERNAME}
       - MYSQLDB_PASSWORD=${MYSQLDB_PASSWORD}
       - MYSQLDB_ROOT_PASSWORD=${MYSQLDB_ROOT_PASSWORD}
+      - GEOCODING_ID=${GEOCODING_ID}
+      - GEOCODING_SECRET=${GEOCODING_SECRET}
     # my-db의 컨테이너가 생성되고 healthy 하다고 판단 될 때, 해당 컨테이너를 생성한다.
     depends_on:
 #      poppop-db:

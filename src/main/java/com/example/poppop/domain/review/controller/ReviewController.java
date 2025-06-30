@@ -1,15 +1,16 @@
 package com.example.poppop.domain.review.controller;
 
+import com.example.poppop.domain.comment.swagger.GetSingleComment;
 import com.example.poppop.domain.member.entity.CustomOAuth2User;
 import com.example.poppop.domain.review.dto.request.ReviewCreateRequest;
 import com.example.poppop.domain.review.dto.request.ReviewUpdateRequest;
+import com.example.poppop.domain.review.dto.response.ReviewDetailResponse;
 import com.example.poppop.domain.review.dto.response.ReviewResponse;
+import com.example.poppop.domain.review.error.ReviewErrorCode;
 import com.example.poppop.domain.review.service.ReviewService;
-import com.example.poppop.domain.review.swagger.DeleteReview;
-import com.example.poppop.domain.review.swagger.GetPopupReviews;
-import com.example.poppop.domain.review.swagger.PostReview;
-import com.example.poppop.domain.review.swagger.UpdateReview;
+import com.example.poppop.domain.review.swagger.*;
 import com.example.poppop.global.common.ApiResponse;
+import com.example.poppop.global.error.exception.CustomException;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
@@ -43,6 +44,17 @@ public class ReviewController {
             @RequestParam @Valid Integer size) {
 
         return ApiResponse.success(reviewService.findAllByPopup(popupId, page, size));
+    }
+
+    @GetSingleReview
+    @GetMapping("/{reviewId}")
+    public ApiResponse<ReviewDetailResponse> getReview(
+            @PathVariable Long popupId,
+            @PathVariable Long reviewId) {
+
+        return ApiResponse.success(
+                reviewService.findOneReview(popupId, reviewId)
+        );
     }
 
     @UpdateReview

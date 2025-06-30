@@ -2,13 +2,12 @@ package com.example.poppop.domain.comment.controller;
 
 import com.example.poppop.domain.comment.dto.request.CommentCreateRequest;
 import com.example.poppop.domain.comment.dto.request.CommentUpdateRequest;
+import com.example.poppop.domain.comment.dto.response.CommentListResponse;
 import com.example.poppop.domain.comment.dto.response.CommentResponse;
 import com.example.poppop.domain.comment.service.CommentService;
-import com.example.poppop.domain.comment.swagger.DeleteComment;
-import com.example.poppop.domain.comment.swagger.GetComments;
-import com.example.poppop.domain.comment.swagger.PostComment;
-import com.example.poppop.domain.comment.swagger.UpdateComment;
+import com.example.poppop.domain.comment.swagger.*;
 import com.example.poppop.domain.member.entity.CustomOAuth2User;
+import com.example.poppop.domain.review.swagger.GetSingleReview;
 import com.example.poppop.global.common.ApiResponse;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
@@ -37,8 +36,19 @@ public class CommentController {
 
     @GetComments
     @GetMapping
-    public ApiResponse<List<CommentResponse>> getComments(@PathVariable Long reviewId) {
-        return ApiResponse.success(commentService.findByReview(reviewId));
+    public ApiResponse<List<CommentListResponse>> getComments(@PathVariable Long reviewId) {
+        return ApiResponse.success(commentService.findAllByReview(reviewId));
+    }
+
+    @GetSingleComment
+    @GetMapping("/{commentId}")
+    public ApiResponse<CommentResponse> getComment(
+            @PathVariable Long reviewId,
+            @PathVariable Long commentId) {
+
+        return ApiResponse.success(
+                commentService.findOneComment(reviewId, commentId)
+        );
     }
 
     @UpdateComment

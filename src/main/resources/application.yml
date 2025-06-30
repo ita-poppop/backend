@@ -31,7 +31,7 @@ spring:
 
   data:
     redis:
-      host: my-cache-server
+      host: poppop-cache
       port: 6379
 
 app:
@@ -40,6 +40,5 @@ app:
 
 naver:
   geocoding:
-    client-id: ro8kabizfn
-    client-secret: buhLpIaY3B586tOIFZHlkEoW2UYLOM19jxEADpc7
-
+    client-id: ${GEOCODING_ID}
+    client-secret: ${GEOCODING_SECRET}
