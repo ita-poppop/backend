@@ -54,7 +54,7 @@ public class PopupController {
             @RequestParam @Valid Integer page,
             @RequestParam @Valid Integer size
     ) {
-        List<PopupSearchDto> popupSearchedDtos = popupService.getSearchedPopups(page, size, title);
+        List<PopupSearchDto> popupSearchedDtos = popupService.getSearchedPopups(title, page, size);
         return ApiResponse.success(popupSearchedDtos);
     }
 
