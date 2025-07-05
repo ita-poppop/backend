@@ -11,7 +11,7 @@ import com.example.poppop.domain.story.dto.response.StoryDetailResponse;
 import com.example.poppop.domain.story.dto.response.StorySummaryResponse;
 import com.example.poppop.domain.story.entity.Story;
 import com.example.poppop.domain.story.entity.StoryRead;
-import com.example.poppop.domain.story.error.PopupErrorCode;
+import com.example.poppop.domain.story.error.StoryErrorCode;
 import com.example.poppop.domain.story.repository.StoryReadRepository;
 import com.example.poppop.domain.story.repository.StoryRepository;
 import com.example.poppop.global.error.exception.CustomException;
@@ -39,9 +39,9 @@ public class StoryServiceImpl implements StoryService {
     public void create(Long popupId, StoryCreateRequest request, CustomOAuth2User oauth2User) {
 
         Member member = memberRepository.findById(oauth2User.getId())
-                .orElseThrow(() -> new CustomException(PopupErrorCode.MEMBER_NOT_FOUND));
+                .orElseThrow(() -> new CustomException(StoryErrorCode.MEMBER_NOT_FOUND));
         Popup popup = popupRepository.findById(popupId)
-                .orElseThrow(() -> new CustomException(PopupErrorCode.POPUP_NOT_FOUND));
+                .orElseThrow(() -> new CustomException(StoryErrorCode.POPUP_NOT_FOUND));
 
         Story story = Story.builder()
                 .photoUrl(request.photoUrl())
@@ -82,7 +82,7 @@ public class StoryServiceImpl implements StoryService {
     public List<PopupStoryResponse> findByPopup(Long popupId, int page, int size, CustomOAuth2User oauth2User) {
 
         Popup popup = popupRepository.findById(popupId)
-                .orElseThrow(() -> new CustomException(PopupErrorCode.POPUP_NOT_FOUND));
+                .orElseThrow(() -> new CustomException(StoryErrorCode.POPUP_NOT_FOUND));
         Pageable pageable = PageRequest.of(page - 1, size, Sort.by(Sort.Direction.DESC, "createdAt"));
 
         return storyRepository.findByPopupOrderByCreatedAtDesc(popup, pageable).stream()
@@ -104,9 +104,9 @@ public class StoryServiceImpl implements StoryService {
     public StoryDetailResponse findOneStory(Long popupId, Long storyId, CustomOAuth2User oauth2User) {
 
         popupRepository.findById(popupId)
-                .orElseThrow(() -> new CustomException(PopupErrorCode.POPUP_NOT_FOUND));
+                .orElseThrow(() -> new CustomException(StoryErrorCode.POPUP_NOT_FOUND));
         Story story = storyRepository.findById(storyId)
-                .orElseThrow(() -> new CustomException(PopupErrorCode.STORY_NOT_FOUND));
+                .orElseThrow(() -> new CustomException(StoryErrorCode.STORY_NOT_FOUND));
 
         boolean alreadyRead = readRepository.existsByStoryAndMember(
                 story, memberRepository.getReferenceById(oauth2User.getId())
@@ -123,5 +123,22 @@ public class StoryServiceImpl implements StoryService {
                 story.getPopup().getTitle(),
                 story.getCreatedAt()
         );
+    }
+
+    @Override
+    @Transactional
+    public void delete(Long popupId, Long storyId, CustomOAuth2User oauth2User) {
+
+        popupRepository.findById(popupId)
+                .orElseThrow(() -> new CustomException(StoryErrorCode.POPUP_NOT_FOUND));
+
+        Story story = storyRepository.findById(storyId)
+                .orElseThrow(() -> new CustomException(StoryErrorCode.STORY_NOT_FOUND));
+
+        if (!story.getMember().getId().equals(oauth2User.getId())) {
+            throw new CustomException(StoryErrorCode.INVALID_PERMISSION);
+        }
+
+        story.softDelete();
     }
 }
