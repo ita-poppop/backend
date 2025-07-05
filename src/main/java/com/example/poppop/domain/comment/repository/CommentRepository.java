@@ -2,7 +2,6 @@ package com.example.poppop.domain.comment.repository;
 
 import com.example.poppop.domain.comment.entity.Comment;
 import com.example.poppop.domain.review.entity.Review;
-import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Query;
@@ -31,7 +30,13 @@ public interface CommentRepository extends JpaRepository<Comment, Long> {
         AND c.isDeleted = false
       ORDER BY c.createdAt ASC
     """)
-    Page<Comment> findRootByReview(@Param("review") Review review, Pageable pageable);
+    List<Comment> findRootByReview(@Param("review") Review review, Pageable pageable);
 
     long countByReviewAndParentIsNullAndIsDeletedFalse(Review review);
+
+    // 추가: parent(=루트 댓글)의 1단계 대댓글만 페이징 조회
+    List<Comment> findByParentAndIsDeletedFalseOrderByCreatedAtAsc(
+            Comment parent,
+            Pageable pageable
+    );
 }

@@ -6,12 +6,13 @@ import com.example.poppop.domain.story.service.StoryService;
 import com.example.poppop.global.common.ApiResponse;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
-import org.springframework.data.domain.Page;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
+
+import java.util.List;
 
 @RestController
 @RequestMapping("/api/v1/stories")
@@ -20,7 +21,7 @@ public class StoryGlobalController {
     private final StoryService storyService;
 
     @GetMapping
-    public ApiResponse<Page<StorySummaryResponse>> getAllStories(
+    public ApiResponse<List<StorySummaryResponse>> getAllStories(
             @RequestParam @Valid Integer page,
             @RequestParam @Valid Integer size,
             @AuthenticationPrincipal CustomOAuth2User oauth2User) {

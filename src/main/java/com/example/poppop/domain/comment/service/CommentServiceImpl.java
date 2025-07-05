@@ -14,7 +14,6 @@ import com.example.poppop.domain.review.entity.Review;
 import com.example.poppop.domain.review.repository.ReviewRepository;
 import com.example.poppop.global.error.exception.CustomException;
 import lombok.RequiredArgsConstructor;
-import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.domain.Sort;
@@ -62,7 +61,7 @@ public class CommentServiceImpl implements CommentService {
     }
 
     @Override
-    public Page<CommentListResponse> findAllByReview(Long reviewId, int page, int size) {
+    public List<CommentListResponse> findAllByReview(Long reviewId, int page, int size) {
 
         Review review = reviewRepository.findById(reviewId)
                 .orElseThrow(() -> new CustomException(CommentErrorCode.REVIEW_NOT_FOUND));
@@ -70,7 +69,7 @@ public class CommentServiceImpl implements CommentService {
 
 //        List<Comment> roots = commentRepository.findRootComments(review, pageable);
 
-        return commentRepository.findRootByReview(review, pageable)
+        return commentRepository.findRootByReview(review, pageable).stream()
                 .map(comment -> {
                     int replyCount = (int) comment.countAllReplies();
                     return new CommentListResponse(
@@ -82,7 +81,8 @@ public class CommentServiceImpl implements CommentService {
                             comment.getUpdatedAt(),
                             replyCount
                     );
-                });
+                })
+                .toList();
 
 //        return roots.stream()
 //                .map(c -> new CommentListResponse(
@@ -100,6 +100,7 @@ public class CommentServiceImpl implements CommentService {
 //                .toList();
     }
 
+//     루트 댓글에 대한 전체 대댓글을 함께 반환
     @Override
     public CommentResponse findOneComment(Long reviewId, Long commentId) {
         // 리뷰 존재 검증
@@ -110,6 +111,19 @@ public class CommentServiceImpl implements CommentService {
                 .orElseThrow(() -> new CustomException(CommentErrorCode.COMMENT_NOT_FOUND));
 
         return CommentResponse.from(comment);
+    }
+
+    @Override
+    public List<CommentResponse> findReplies(Long commentId, int page, int size) {
+        Comment parent = commentRepository.findById(commentId)
+                .orElseThrow(() -> new CustomException(CommentErrorCode.COMMENT_NOT_FOUND));
+
+        Pageable pageable = PageRequest.of(page - 1, size, Sort.by("createdAt").ascending());
+        return commentRepository
+                .findByParentAndIsDeletedFalseOrderByCreatedAtAsc(parent, pageable)
+                .stream()
+                .map(CommentResponse::from)
+                .toList();
     }
 
     @Override
