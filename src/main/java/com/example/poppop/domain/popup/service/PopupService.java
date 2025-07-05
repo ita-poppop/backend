@@ -117,10 +117,9 @@ public class PopupService {
         return Duration.ofMinutes(minutes);
     }
     // 검색한 팝업 조회
-    public List<PopupSearchDto> getSearchedPopups(Integer page, Integer size, PopupSearchRequestDto requestDto) {
-        String title = requestDto.getTitle();
+    public List<PopupSearchDto> getSearchedPopups(String title, Integer page, Integer size) {
         PageRequest pageable = PageRequest.of(page - 1, size);
-        List<Popup> searchedPopups = popupRepository.findSearchedPopups(pageable, title);
+        List<Popup> searchedPopups = popupRepository.findSearchedPopups(title, pageable);
         return searchedPopups.stream()
                 .map(PopupSearchDto::from)
                 .collect(Collectors.toList());

@@ -50,11 +50,11 @@ public class PopupController {
     // 팝업 검색 우선은 %like%로 검색하도록 이후에 실시간 검색,검색어 자동완성으로 개선
     @GetMapping("/search")
     public ApiResponse<List<PopupSearchDto>> getSearchedPopups(
-            @RequestBody PopupSearchRequestDto requestDto,
+            @RequestParam String title,
             @RequestParam @Valid Integer page,
             @RequestParam @Valid Integer size
     ) {
-        List<PopupSearchDto> popupSearchedDtos = popupService.getSearchedPopups(page, size, requestDto);
+        List<PopupSearchDto> popupSearchedDtos = popupService.getSearchedPopups(title, page, size);
         return ApiResponse.success(popupSearchedDtos);
     }
 
