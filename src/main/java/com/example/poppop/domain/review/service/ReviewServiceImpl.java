@@ -66,13 +66,16 @@ public class ReviewServiceImpl implements ReviewService {
         Popup popup = popupRepository.findById(popupId)
                 .orElseThrow(() -> new CustomException(ReviewErrorCode.POPUP_NOT_FOUND));
 
-        Pageable pageable = PageRequest.of(page, size, Sort.by(Sort.Direction.DESC, "createdAt"));
+        Pageable pageable = PageRequest.of(page - 1, size, Sort.by(Sort.Direction.DESC, "createdAt"));
 
         return reviewRepository
                 .findByPopupAndIsDeletedFalseOrderByCreatedAtDesc(popup, pageable)
                 .stream()
-                .map(ReviewResponse::from)
-                .toList();
+                .map(review -> {
+                    long likeCount = reviewLikeRepository.countByReviewAndLikedTrue(review);
+                    long commentCount = commentRepository.countByReviewAndParentIsNullAndIsDeletedFalse(review);
+                    return ReviewResponse.from(review, likeCount, commentCount);
+                }).toList();
     }
 
     @Override
