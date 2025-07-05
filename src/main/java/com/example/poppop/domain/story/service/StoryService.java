@@ -14,4 +14,5 @@ public interface StoryService {
     List<StorySummaryResponse> findAllStory(int page, int size, CustomOAuth2User oauth2User);
     List<PopupStoryResponse> findByPopup(Long popupId, int page, int size, CustomOAuth2User oauth2User);
     StoryDetailResponse findOneStory(Long popupId, Long storyId, CustomOAuth2User oauth2User);
+    void delete(Long popupId, Long storyId, CustomOAuth2User oauth2User);
 }

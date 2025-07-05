@@ -52,4 +52,14 @@ public class StoryController {
                 storyService.findOneStory(popupId, storyId, oauth2User)
         );
     }
+
+    @PostMapping("/{storyId}/delete")
+    public ApiResponse<Void> deleteStory(
+            @PathVariable Long popupId,
+            @PathVariable Long storyId,
+            @AuthenticationPrincipal CustomOAuth2User user) {
+
+        storyService.delete(popupId, storyId, user);
+        return ApiResponse.successMessage("스토리가 삭제되었습니다.");
+    }
 }
