@@ -4,13 +4,15 @@ import com.example.poppop.domain.member.entity.CustomOAuth2User;
 import com.example.poppop.domain.story.dto.request.StoryCreateRequest;
 import com.example.poppop.domain.story.dto.response.PopupStoryResponse;
 import com.example.poppop.domain.story.dto.response.StoryDetailResponse;
+import com.example.poppop.domain.story.dto.response.StorySummaryResponse;
 import com.example.poppop.domain.story.service.StoryService;
 import com.example.poppop.global.common.ApiResponse;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
-import org.springframework.data.domain.Page;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.web.bind.annotation.*;
+
+import java.util.List;
 
 @RestController
 @RequestMapping("/api/v1/popups/{popupId}/stories")
@@ -29,7 +31,7 @@ public class StoryController {
     }
 
     @GetMapping
-    public ApiResponse<Page<PopupStoryResponse>> getPopupStories(
+    public ApiResponse<List<PopupStoryResponse>> getPopupStories(
             @PathVariable Long popupId,
             @RequestParam @Valid Integer page,
             @RequestParam @Valid Integer size,

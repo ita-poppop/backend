@@ -16,12 +16,13 @@ import com.example.poppop.domain.story.repository.StoryReadRepository;
 import com.example.poppop.domain.story.repository.StoryRepository;
 import com.example.poppop.global.error.exception.CustomException;
 import lombok.RequiredArgsConstructor;
-import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.domain.Sort;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
+
+import java.util.List;
 
 @Service
 @RequiredArgsConstructor
@@ -54,11 +55,11 @@ public class StoryServiceImpl implements StoryService {
     }
 
     @Override
-    public Page<StorySummaryResponse> findAllStory(int page, int size, CustomOAuth2User oauth2User) {
+    public List<StorySummaryResponse> findAllStory(int page, int size, CustomOAuth2User oauth2User) {
 
         Pageable pageable = PageRequest.of(page - 1, size, Sort.by(Sort.Direction.DESC, "createdAt"));
 
-        return storyRepository.findAllByOrderByCreatedAtDesc(pageable)
+        return storyRepository.findAllByOrderByCreatedAtDesc(pageable).stream()
                 .map(story -> {
                     boolean isRead = readRepository.existsByStoryAndMember(story, memberRepository.getReferenceById(oauth2User.getId()));
                     return new StorySummaryResponse(
@@ -73,17 +74,18 @@ public class StoryServiceImpl implements StoryService {
                             isRead,
                             story.getCreatedAt()
                     );
-                });
+                })
+                .toList();
     }
 
     @Override
-    public Page<PopupStoryResponse> findByPopup(Long popupId, int page, int size, CustomOAuth2User oauth2User) {
+    public List<PopupStoryResponse> findByPopup(Long popupId, int page, int size, CustomOAuth2User oauth2User) {
 
         Popup popup = popupRepository.findById(popupId)
                 .orElseThrow(() -> new CustomException(PopupErrorCode.POPUP_NOT_FOUND));
         Pageable pageable = PageRequest.of(page - 1, size, Sort.by(Sort.Direction.DESC, "createdAt"));
 
-        return storyRepository.findByPopupOrderByCreatedAtDesc(popup, pageable)
+        return storyRepository.findByPopupOrderByCreatedAtDesc(popup, pageable).stream()
                 .map(story -> {
                     boolean isRead = readRepository.existsByStoryAndMember(story, memberRepository.getReferenceById(oauth2User.getId()));
                     return new PopupStoryResponse(
@@ -94,7 +96,8 @@ public class StoryServiceImpl implements StoryService {
                             isRead,
                             story.getCreatedAt()
                     );
-                });
+                })
+                .toList();
     }
 
     @Override

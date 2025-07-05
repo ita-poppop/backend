@@ -7,11 +7,9 @@ import com.example.poppop.domain.comment.dto.response.CommentResponse;
 import com.example.poppop.domain.comment.service.CommentService;
 import com.example.poppop.domain.comment.swagger.*;
 import com.example.poppop.domain.member.entity.CustomOAuth2User;
-import com.example.poppop.domain.review.swagger.GetSingleReview;
 import com.example.poppop.global.common.ApiResponse;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
-import org.springframework.data.domain.Page;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.web.bind.annotation.*;
 
@@ -37,7 +35,7 @@ public class CommentController {
 
     @GetComments
     @GetMapping
-    public ApiResponse<Page<CommentListResponse>> getComments(
+    public ApiResponse<List<CommentListResponse>> getComments(
             @PathVariable Long reviewId,
             @RequestParam @Valid Integer page,
             @RequestParam @Valid Integer size) {

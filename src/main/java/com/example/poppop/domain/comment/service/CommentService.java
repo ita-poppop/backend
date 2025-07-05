@@ -5,15 +5,15 @@ import com.example.poppop.domain.comment.dto.request.CommentUpdateRequest;
 import com.example.poppop.domain.comment.dto.response.CommentListResponse;
 import com.example.poppop.domain.comment.dto.response.CommentResponse;
 import com.example.poppop.domain.member.entity.CustomOAuth2User;
-import org.springframework.data.domain.Page;
 
 import java.util.List;
 
 public interface CommentService {
 
     void create(Long reviewId, CommentCreateRequest dto, CustomOAuth2User oauth2user);
-    Page<CommentListResponse> findAllByReview(Long reviewId, int page, int size);
+    List<CommentListResponse> findAllByReview(Long reviewId, int page, int size);
     CommentResponse findOneComment(Long reviewId, Long commentId);
+    List<CommentResponse> findReplies(Long commentId, int page, int size);
     void update(Long commentId, CommentUpdateRequest dto, CustomOAuth2User oauth2user);
     void delete(Long commentId, CustomOAuth2User oauth2user);
 
