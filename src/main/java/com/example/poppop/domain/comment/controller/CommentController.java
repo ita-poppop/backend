@@ -11,6 +11,7 @@ import com.example.poppop.domain.review.swagger.GetSingleReview;
 import com.example.poppop.global.common.ApiResponse;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
+import org.springframework.data.domain.Page;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.web.bind.annotation.*;
 
@@ -36,8 +37,12 @@ public class CommentController {
 
     @GetComments
     @GetMapping
-    public ApiResponse<List<CommentListResponse>> getComments(@PathVariable Long reviewId) {
-        return ApiResponse.success(commentService.findAllByReview(reviewId));
+    public ApiResponse<Page<CommentListResponse>> getComments(
+            @PathVariable Long reviewId,
+            @RequestParam @Valid Integer page,
+            @RequestParam @Valid Integer size) {
+
+        return ApiResponse.success(commentService.findAllByReview(reviewId, page, size));
     }
 
     @GetSingleComment

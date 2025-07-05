@@ -68,19 +68,14 @@ public class ReviewServiceImpl implements ReviewService {
 
         Pageable pageable = PageRequest.of(page - 1, size, Sort.by(Sort.Direction.DESC, "createdAt"));
 
-
-
         return reviewRepository
                 .findByPopupAndIsDeletedFalseOrderByCreatedAtDesc(popup, pageable)
                 .stream()
                 .map(review -> {
-                    long likeCnt = reviewLikeRepository
-                            .countByReviewAndLikedTrue(review);
-                    long commentCnt = commentRepository
-                            .countByReviewAndParentIsNullAndIsDeletedFalse(review);
-                    return ReviewResponse.from(review, likeCnt, commentCnt);
-                })
-                .toList();
+                    long likeCount = reviewLikeRepository.countByReviewAndLikedTrue(review);
+                    long commentCount = commentRepository.countByReviewAndParentIsNullAndIsDeletedFalse(review);
+                    return ReviewResponse.from(review, likeCount, commentCount);
+                }).toList();
     }
 
     @Override

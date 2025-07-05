@@ -11,6 +11,7 @@ public record ReviewResponse(
         String content,
         List<String> imageUrls,
         String writerName,
+        String writerProfileUrl,
         LocalDateTime createdAt,
         LocalDateTime updatedAt,
         long likeCount,
@@ -24,6 +25,7 @@ public record ReviewResponse(
                         .map(ReviewImage::getUrl)
                         .toList(),
                 review.getMember().getUserName(),
+                review.getMember().getProfileUrl(),
                 review.getCreatedAt(),
                 review.getUpdatedAt(),
                 likeCount,

@@ -6,6 +6,7 @@ public record CommentListResponse(
         Long commentId,
         String content,
         String writerName,
+        String writerProfileUrl,
         LocalDateTime createdAt,
         LocalDateTime updatedAt,
         int replyCount
