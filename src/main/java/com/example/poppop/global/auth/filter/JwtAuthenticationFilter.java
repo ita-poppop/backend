@@ -2,6 +2,7 @@ package com.example.poppop.global.auth.filter;
 
 import com.example.poppop.global.auth.dto.PopPopUserDetails;
 import com.example.poppop.global.auth.dto.UserInfo;
+import com.example.poppop.global.auth.model.PopPopOAuth2User;
 import com.example.poppop.global.auth.service.JwtService;
 import com.example.poppop.global.auth.service.JwtTokenProvider;
 import jakarta.servlet.FilterChain;
@@ -40,8 +41,8 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
                 // 토큰에서 사용자 정보 추출
                 UserInfo userInfo = jwtTokenProvider.extractMemberDTOFromAccessTocken(token);
 
-                // UserDetails 구현체 생성
-                PopPopUserDetails userDetails = new PopPopUserDetails(userInfo);
+                // UserDetails 구현체(PopPopOAuth2User) 생성
+                PopPopOAuth2User userDetails = PopPopOAuth2User.from(userInfo);
 
                 // 인증 객체 생성 및 SecurityContext 등록
                 UsernamePasswordAuthenticationToken authentication =

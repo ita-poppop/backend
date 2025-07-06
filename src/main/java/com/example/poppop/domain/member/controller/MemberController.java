@@ -54,7 +54,7 @@ public class MemberController {
         if (authentication == null || !authentication.isAuthenticated()) {
             throw new CustomException(GlobalErrorCode.UNAUTHORIZED, "로그인이 필요합니다.");
         }
-        PopPopUserDetails principal = (PopPopUserDetails) authentication.getPrincipal();
+        PopPopOAuth2User principal = (PopPopOAuth2User) authentication.getPrincipal();
         MemberResponse response = memberService.getMemberInfo(principal.getEmail());
         return ApiResponse.success(response);
     }

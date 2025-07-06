@@ -32,6 +32,7 @@ public class JwtLoginSuccessHandler implements AuthenticationSuccessHandler {
 
     @Override
     public void onAuthenticationSuccess(HttpServletRequest request, HttpServletResponse response, Authentication authentication) throws IOException, ServletException {
+
         PopPopOAuth2User principal = (PopPopOAuth2User) authentication.getPrincipal();
         memberService.registerIfNotExists(principal);
         TokenDto tokenDto = jwtService.doTockenGenerationProcess(principal);

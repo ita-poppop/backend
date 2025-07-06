@@ -4,10 +4,16 @@ import com.example.poppop.global.auth.dto.UserInfo;
 import lombok.Builder;
 import lombok.Getter;
 import lombok.ToString;
+import org.springframework.security.core.GrantedAuthority;
+import org.springframework.security.core.authority.SimpleGrantedAuthority;
+import org.springframework.security.core.userdetails.UserDetails;
+
+import java.util.Collection;
+import java.util.Collections;
 
 @ToString
 @Getter
-public class PopPopOAuth2User {
+public class PopPopOAuth2User implements UserDetails {
     private String providerId;
     private String registerId;
     private String nickName;
@@ -32,4 +38,22 @@ public class PopPopOAuth2User {
                 .profileImage(userInfo.getProfileImage())
                 .build();
     }
+
+    @Override
+    public Collection<? extends GrantedAuthority> getAuthorities() {
+        // 일반 유저 권한을 "ROLE_USER"로 지정
+        return Collections.singletonList(new SimpleGrantedAuthority("ROLE_USER"));
+    }
+    @Override
+    public String getPassword() { return null; }
+    @Override
+    public String getUsername() { return email; }
+    @Override
+    public boolean isAccountNonExpired() { return true; }
+    @Override
+    public boolean isAccountNonLocked() { return true; }
+    @Override
+    public boolean isCredentialsNonExpired() { return true; }
+    @Override
+    public boolean isEnabled() { return true; }
 }

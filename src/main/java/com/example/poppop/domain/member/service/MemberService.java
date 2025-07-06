@@ -37,10 +37,9 @@ public class MemberService {
         // 3. JWT 토큰 발급
         TokenDto tokenDto = jwtService.doTockenGenerationProcess(principal);
 
-        // 4. SecurityContext에 인증 정보 저장
-        PopPopUserDetails userDetails = new PopPopUserDetails(userInfo);
+        // 4. SecurityContext에 인증 정보 저장 (UserDetails 구현체로 PopPopOAuth2User 사용)
         UsernamePasswordAuthenticationToken authentication =
-                new UsernamePasswordAuthenticationToken(userDetails, null, userDetails.getAuthorities());
+                new UsernamePasswordAuthenticationToken(principal, null, principal.getAuthorities());
         SecurityContextHolder.getContext().setAuthentication(authentication);
 
         // 5. 토큰을 헤더에 추가 (선택)
