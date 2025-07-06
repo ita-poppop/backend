@@ -9,6 +9,7 @@ public record CommentResponse(
         Long commentId,
         String content,
         String writerName,
+        String writerProfileUrl,
         LocalDateTime createdAt,
         LocalDateTime updatedAt,
         List<CommentResponse> children   // 재귀
@@ -23,6 +24,7 @@ public record CommentResponse(
                 c.getId(),
                 c.getContent(),
                 c.getMember().getUserName(),
+                c.getMember().getProfileUrl(),
                 c.getCreatedAt(),
                 c.getUpdatedAt(),
                 kids

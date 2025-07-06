@@ -55,4 +55,16 @@ public class Comment extends BaseEntity {
     public void addChild(Comment child) {
         children.add(child);
     }
+
+    public int countAllReplies() {
+        // 현재 자식 수
+        int cnt = 0;
+        for (Comment child : children) {
+            if (!child.getIsDeleted()) {
+                // +1 (child 자신) + 그 아래 재귀 개수
+                cnt += 1 + child.countAllReplies();
+            }
+        }
+        return cnt;
+    }
 }

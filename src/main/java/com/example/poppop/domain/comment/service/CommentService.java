@@ -11,8 +11,9 @@ import java.util.List;
 public interface CommentService {
 
     void create(Long reviewId, CommentCreateRequest dto, CustomOAuth2User oauth2user);
-    List<CommentListResponse> findAllByReview(Long reviewId);
+    List<CommentListResponse> findAllByReview(Long reviewId, int page, int size);
     CommentResponse findOneComment(Long reviewId, Long commentId);
+    List<CommentResponse> findReplies(Long commentId, int page, int size);
     void update(Long commentId, CommentUpdateRequest dto, CustomOAuth2User oauth2user);
     void delete(Long commentId, CustomOAuth2User oauth2user);
 
