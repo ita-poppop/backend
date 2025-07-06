@@ -43,3 +43,11 @@ naver:
   geocoding:
     client-id: ${GEOCODING_ID}
     client-secret: ${GEOCODING_SECRET}
+
+jwt:
+  access-tocken-expiration: 3600000
+  refresh-tocken-expiration: 1209600000
+  secret: 2f8d7e9a1b3c4d5e6f7g8h9i0j1k2l3m
+
+client:
+  url: http://localhost:3000

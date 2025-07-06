@@ -77,7 +77,7 @@ public class PopupDataInitializer implements CommandLineRunner {
             throw ce;
         } catch (Exception e) {
             log.error("팝업 데이터 초기화 중 예외 발생", e);
-            throw new CustomException("팝업 데이터 초기화 실패", GlobalErrorCode.INTERNAL_SERVER_ERROR);
+            throw new CustomException(GlobalErrorCode.INTERNAL_SERVER_ERROR,"팝업 데이터 초기화 실패");
         }
     }
 }
