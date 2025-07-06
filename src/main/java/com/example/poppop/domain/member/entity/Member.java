@@ -31,16 +31,33 @@ public class Member extends BaseEntity {
     @Column(name = "notification_set", nullable = false)
     private Boolean notificationSet = Boolean.TRUE;
 
+    private String providerId;
+
+    private String registerId;
+
+    private String nickName;
+
+    private String profileImage;
+
     @Builder
     private Member(String profileUrl,
                    String email,
                    String userName,
-                   Boolean notificationSet) {
+                   Boolean notificationSet,
+                   String providerId,
+                   String registerId,
+                   String nickName,
+                   String profileImage
+                   ) {
 
         this.profileUrl      = profileUrl;
         this.email           = email;
         this.userName        = userName;
         this.notificationSet = (notificationSet != null) ? notificationSet : Boolean.TRUE;
+        this.providerId     = providerId;
+        this.registerId      = registerId;
+        this.nickName      = nickName;
+        this.profileImage    = profileImage;
     }
 
     public void updateProfile(String newUrl, String newName) {
