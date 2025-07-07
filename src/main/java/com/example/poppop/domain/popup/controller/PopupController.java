@@ -4,6 +4,7 @@ import com.example.poppop.domain.member.entity.CustomOAuth2User;
 import com.example.poppop.domain.popup.dto.*;
 import com.example.poppop.domain.popup.dto.request.PopupSearchRequestDto;
 import com.example.poppop.domain.popup.service.PopupService;
+import com.example.poppop.global.auth.model.PopPopOAuth2User;
 import com.example.poppop.global.common.ApiResponse;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
@@ -21,10 +22,10 @@ public class PopupController {
     @GetMapping("/{popupId}")
     public ApiResponse<PopupDetailDto> getDetailPopup(
             @PathVariable Long popupId,
-            @AuthenticationPrincipal CustomOAuth2User oauth2User
-    ) {
+            @AuthenticationPrincipal PopPopOAuth2User user
+            ) {
         PopupDetailDto detailPopup = popupService.getDetailPopup(popupId);
-        popupService.incrementViewCount(popupId, oauth2User);
+        popupService.incrementViewCount(popupId, user);
         return ApiResponse.success(detailPopup);
     }
 

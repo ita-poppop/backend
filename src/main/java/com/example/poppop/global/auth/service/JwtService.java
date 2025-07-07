@@ -30,25 +30,24 @@ public class JwtService {
     private final MemberRepository memberRepository;
     private final RefreshTokenService refreshTokenService;
 
-    public PopPopOAuth2User getPrincipal(String accessToken) {
+/*    public PopPopOAuth2User getPrincipal(String accessToken) {
         return PopPopOAuth2User.from(jwtTokenProvider.extractMemberDTOFromAccessTocken(accessToken));
-    }
+    }*/
 
     @Transactional
-    public void logout(String bearerRefreshTocken) {
-        String email = this.extractEmailFromRefreshTocken(bearerRefreshTocken);
-        log.debug("로그아웃 === 이메일: {}",  email);
-        refreshTokenRepository.deleteAllByEmail(email);
+    public void logout(String accessToken) {
+        Long memberId = this.getMemberIdFromAccessToken(accessToken);
+        refreshTokenRepository.deleteByMemberId(memberId);
     }
 
-    private String extractEmailFromRefreshTocken(String bearerRefreshTocken) {
+/*    private String extractEmailFromRefreshTocken(String bearerRefreshTocken) {
         String refreshTocken = this.getTockenFromBearer(bearerRefreshTocken);
         return jwtTokenProvider.getEmail(refreshTocken);
-    }
+    }*/
 
-    public void validate(String tocken) {
+    public void validate(String token) {
         try {
-            jwtTokenProvider.getPayload(tocken);
+            jwtTokenProvider.getPayload(token);
         } catch (SecurityException e) {
             throw new CustomException(GlobalErrorCode.INTERNAL_SERVER_ERROR, "security exception");
         } catch (MalformedJwtException e) {
@@ -60,36 +59,30 @@ public class JwtService {
         }
     }
 
-    @Transactional
+/*    @Transactional
     public TokenDto tockenRefresh(String bearerRefreshTocken) {
         String refreshTocken = this.getTockenFromBearer(bearerRefreshTocken);
         this.validate(refreshTocken);
         PopPopOAuth2User popPopOAuth2User = this.extractPopPopOAuth2User(refreshTocken);
         log.debug("토큰 갱신 === 유저: {}", popPopOAuth2User);
         return this.doTockenGenerationProcess(popPopOAuth2User);
-    }
+    }*/
 
-    private PopPopOAuth2User extractPopPopOAuth2User(String refreshTocken) {
+/*    private PopPopOAuth2User extractPopPopOAuth2User(String refreshTocken) {
         RefreshToken refreshToken = refreshTokenRepository.findByPayload(refreshTocken)
                 .orElseThrow(() -> new CustomException(GlobalErrorCode.BAD_REQUEST, "payload not found err"));
         Member memebr = memberRepository.findByEmail(refreshToken.getEmail())
                 .orElseThrow(() -> new CustomException(GlobalErrorCode.NOT_FOUND, "email not found err"));
         return PopPopOAuth2User.from(UserInfo.from(memebr));
-    }
+    }*/
 
-    @Transactional
+/*    @Transactional
     public TokenDto doTockenGenerationProcess(PopPopOAuth2User principal) {
         TokenDto tockenDto = jwtTokenProvider.createJwt(principal);
         refreshTokenService.upsetRefreshTocken(tockenDto);
         return tockenDto;
-    }
+    }*/
 
-    /**
-     * Bearer Prefix를 포함한 값을 전달받으면 토큰만을 추출하여 반환
-     *
-     * @param bearerTocken
-     * @return Token (String)
-     */
     public String getTockenFromBearer(String bearerTocken) {
         if(StringUtils.hasText(bearerTocken) && bearerTocken.startsWith(BEARER_PREFIX)) {
             return bearerTocken.split(" ")[1];
@@ -97,4 +90,12 @@ public class JwtService {
         return null;
     }
 
+    public Long getMemberIdFromAccessToken(String token) {
+        Long memberId = jwtTokenProvider.getMemberId(token);
+        if (memberId == null) {
+            throw new CustomException(GlobalErrorCode.UNAUTHORIZED, "토큰에서 멤버 ID를 추출할 수 없습니다.");
+        }
+        log.info(memberId.toString(), "멤버 id 확인");
+        return memberId;
+    }
 }

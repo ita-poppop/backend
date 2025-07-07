@@ -21,8 +21,11 @@ public class RefreshToken extends BaseEntity {
     @Column(nullable = false)
     private String email;
 
+    private Long memberId;
+
     @Builder
-    public RefreshToken(String payload, String email) {
+    public RefreshToken(String payload, String email, Long memberId) {
+        this.memberId = memberId;
         this.payload = payload;
         this.email = email;
     }

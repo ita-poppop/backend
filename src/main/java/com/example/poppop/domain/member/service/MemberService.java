@@ -9,6 +9,10 @@ import com.example.poppop.global.auth.dto.TokenDto;
 import com.example.poppop.global.auth.dto.UserInfo;
 import com.example.poppop.global.auth.model.PopPopOAuth2User;
 import com.example.poppop.global.auth.service.JwtService;
+import com.example.poppop.global.auth.service.JwtTokenProvider;
+import com.example.poppop.global.auth.service.RefreshTokenService;
+import com.example.poppop.global.error.GlobalErrorCode;
+import com.example.poppop.global.error.exception.CustomException;
 import jakarta.servlet.http.HttpServletResponse;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
@@ -18,6 +22,8 @@ import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import java.util.Date;
+
 @Service
 @RequiredArgsConstructor
 @Slf4j
@@ -25,58 +31,53 @@ public class MemberService {
 
     private final MemberRepository memberRepository;
     private final JwtService jwtService;
+    private final JwtTokenProvider jwtTokenProvider;
+    private final RefreshTokenService refreshTokenService;
 
     @Transactional
     public TokenDto signupAndAuthenticate(UserInfo userInfo, HttpServletResponse response) {
-        // 1. 회원 생성 또는 기존 회원 반환
-        Member member = registerIfNotExists(PopPopOAuth2User.from(userInfo));
+        Member member = registerIfNotExists(userInfo);
 
-        // 2. PopPopOAuth2User 생성 (UserDetails 역할)
-        PopPopOAuth2User principal = PopPopOAuth2User.from(userInfo);
+        PopPopOAuth2User principal = new PopPopOAuth2User(member.getId());
 
-        // 3. JWT 토큰 발급
-        TokenDto tokenDto = jwtService.doTockenGenerationProcess(principal);
+        String accessTocken = jwtTokenProvider.generateAccessTocken(member, new Date());
+        String refreshTocken = jwtTokenProvider.generateRefreshTocken(member, new Date());
+        refreshTokenService.upsetRefreshTocken(member,refreshTocken);
 
-        // 4. SecurityContext에 인증 정보 저장 (UserDetails 구현체로 PopPopOAuth2User 사용)
-        UsernamePasswordAuthenticationToken authentication =
-                new UsernamePasswordAuthenticationToken(principal, null, principal.getAuthorities());
-        SecurityContextHolder.getContext().setAuthentication(authentication);
+        response.setHeader("Authorization", "Bearer " + accessTocken);
+        response.setHeader("RefreshToken", refreshTocken);
 
-        // 5. 토큰을 헤더에 추가 (선택)
-        response.setHeader("Authorization", "Bearer " + tokenDto.getAccessTocken());
-        response.setHeader("RefreshToken", tokenDto.getRefreshTocken());
-
-        // 6. 토큰 반환
-        return tokenDto;
+        return TokenDto.of(member, accessTocken, refreshTocken);
     }
 
-    // 회원 정보 조회 (MemberResponse로 변환)
+    private Member registerIfNotExists(UserInfo userInfo) {
+        return memberRepository.findByEmail(userInfo.getEmail())
+                .orElseGet(() -> memberRepository.save(Member.builder()
+                        .providerId(userInfo.getProviderId())
+                        .registerId(userInfo.getRegisterId())
+                        .email(userInfo.getEmail())
+                        .nickName(userInfo.getNickName())
+                        .profileImage(userInfo.getProfileImage())
+                        .userName(userInfo.getNickName()) // 또는 다른 적절한 값
+                        .build()));
+    }
+
     @Transactional(readOnly = true)
-    public MemberResponse getMemberInfo(String email) {
-        Member member = memberRepository.findByEmail(email)
-                .orElseThrow(() -> new IllegalArgumentException("해당 이메일의 회원이 존재하지 않습니다."));
+    public MemberResponse getMemberResponse(PopPopOAuth2User user) {
+        Long memberId = user.getMemberId();
+        Member member = memberRepository.findById(memberId)
+                .orElseThrow(() -> new CustomException(GlobalErrorCode.NOT_FOUND, "토큰으로 멤버를 찾을 수 없습니다."));
         return MemberResponse.from(member);
     }
 
-    // 회원 존재 여부 확인
     @Transactional(readOnly = true)
-    public boolean existsByEmail(String email) {
-        return memberRepository.findByEmail(email).isPresent();
-    }
-
-    /**
-     * 소셜 로그인 정보로 회원을 생성하거나, 이미 있으면 기존 회원 반환
-     */
-    @Transactional
-    public Member registerIfNotExists(PopPopOAuth2User oAuth2User) {
-        return memberRepository.findByEmail(oAuth2User.getEmail())
-                .orElseGet(() -> memberRepository.save(Member.builder()
-                        .providerId(oAuth2User.getProviderId())
-                        .registerId(oAuth2User.getRegisterId())
-                        .email(oAuth2User.getEmail())
-                        .nickName(oAuth2User.getNickName())
-                        .profileImage(oAuth2User.getProfileImage())
-                        .userName(oAuth2User.getNickName()) // 또는 다른 적절한 값
-                        .build()));
+    public Member getMemberByAccessToken(String token) {
+        if (token == null) {
+            throw new CustomException(GlobalErrorCode.UNAUTHORIZED, "토큰이 없습니다");
+        }
+        Long memberId = jwtService.getMemberIdFromAccessToken(token);
+        Member member = memberRepository.findById(memberId)
+                .orElseThrow(() -> new CustomException(GlobalErrorCode.NOT_FOUND, "토큰으로 멤버를 찾을 수 없습니다."));
+        return member;
     }
 }

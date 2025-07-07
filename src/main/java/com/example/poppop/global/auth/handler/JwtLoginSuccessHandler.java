@@ -19,7 +19,7 @@ import java.io.IOException;
 import java.nio.charset.StandardCharsets;
 
 
-@RequiredArgsConstructor
+/*@RequiredArgsConstructor
 @Component
 public class JwtLoginSuccessHandler implements AuthenticationSuccessHandler {
 
@@ -41,13 +41,13 @@ public class JwtLoginSuccessHandler implements AuthenticationSuccessHandler {
         response.setHeader("Authorization", "Bearer " + tokenDto.getAccessTocken());
         response.setHeader("RefreshToken", tokenDto.getRefreshTocken());
 
-/*        //json 응답 둘중에 하나 선택해서 필요한거 쓰게 하고 나중에 수정
+*//*        //json 응답 둘중에 하나 선택해서 필요한거 쓰게 하고 나중에 수정
         response.setContentType("application/json;charset=UTF-8");
         response.getWriter().write(
                 String.format("{\"accessToken\":\"%s\",\"refreshToken\":\"%s\"}",
                         tokenDto.getAccessTocken(),
                         tokenDto.getRefreshTocken())
-        );*/
+        );*//*
 
         response.sendRedirect(createUri());
     }
@@ -59,5 +59,5 @@ public class JwtLoginSuccessHandler implements AuthenticationSuccessHandler {
                 .encode(StandardCharsets.UTF_8)
                 .toUriString();
     }
-}
+}*/
 

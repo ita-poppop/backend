@@ -35,16 +35,10 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
             String token = authHeader.substring(JwtTokenProvider.BEARER_PREFIX.length()).trim();
 
             try {
-                // 토큰 유효성 검증
                 jwtService.validate(token);
+                Long memberId = jwtService.getMemberIdFromAccessToken(token);
+                PopPopOAuth2User userDetails = new PopPopOAuth2User(memberId);
 
-                // 토큰에서 사용자 정보 추출
-                UserInfo userInfo = jwtTokenProvider.extractMemberDTOFromAccessTocken(token);
-
-                // UserDetails 구현체(PopPopOAuth2User) 생성
-                PopPopOAuth2User userDetails = PopPopOAuth2User.from(userInfo);
-
-                // 인증 객체 생성 및 SecurityContext 등록
                 UsernamePasswordAuthenticationToken authentication =
                         new UsernamePasswordAuthenticationToken(userDetails, null, userDetails.getAuthorities());
 
@@ -53,7 +47,6 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
                 log.warn("JWT 인증 실패: {}", e.getMessage());
             }
         }
-
         filterChain.doFilter(request, response);
     }
 }
