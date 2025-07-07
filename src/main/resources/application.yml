@@ -1,5 +1,6 @@
 # 추가 예시(필요에 따라 사용)
 server:
+  forward-headers-strategy: framework
   port: 8080
 
 logging:
