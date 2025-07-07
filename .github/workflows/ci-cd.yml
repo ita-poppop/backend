@@ -104,14 +104,10 @@ jobs:
             cd ~/poppop
 
             # 기존 단일 컨테이너(처음 한 번만 있으면) 정리
-#            docker stop ita-backend ita-nginx 2>/dev/null || true
-#            docker rm ita-backend ita-nginx 2>/dev/null || true
-
             docker compose down --remove-orphans
             
             # 최신 이미지 가져와 재배치
             docker compose pull
-#            docker compose up -d --remove-orphans
             docker compose up -d --remove-orphans --force-recreate
 
             # 불필요 이미지 정리
