@@ -14,6 +14,7 @@ import com.example.poppop.domain.story.entity.StoryRead;
 import com.example.poppop.domain.story.error.StoryErrorCode;
 import com.example.poppop.domain.story.repository.StoryReadRepository;
 import com.example.poppop.domain.story.repository.StoryRepository;
+import com.example.poppop.global.auth.model.PopPopOAuth2User;
 import com.example.poppop.global.error.exception.CustomException;
 import com.example.poppop.global.s3.service.S3Service;
 import lombok.RequiredArgsConstructor;
@@ -38,9 +39,9 @@ public class StoryServiceImpl implements StoryService {
 
     @Override
     @Transactional
-    public void create(Long popupId, StoryCreateRequest request, CustomOAuth2User oauth2User) {
+    public void create(Long popupId, StoryCreateRequest request, PopPopOAuth2User oauth2User) {
 
-        Member member = memberRepository.findById(oauth2User.getId())
+        Member member = memberRepository.findById(oauth2User.getMemberId())
                 .orElseThrow(() -> new CustomException(StoryErrorCode.MEMBER_NOT_FOUND));
         Popup popup = popupRepository.findById(popupId)
                 .orElseThrow(() -> new CustomException(StoryErrorCode.POPUP_NOT_FOUND));
@@ -61,13 +62,13 @@ public class StoryServiceImpl implements StoryService {
     }
 
     @Override
-    public List<StorySummaryResponse> findAllStory(int page, int size, CustomOAuth2User oauth2User) {
+    public List<StorySummaryResponse> findAllStory(int page, int size, PopPopOAuth2User oauth2User) {
 
         Pageable pageable = PageRequest.of(page - 1, size, Sort.by(Sort.Direction.DESC, "createdAt"));
 
         return storyRepository.findAllByOrderByCreatedAtDesc(pageable).stream()
                 .map(story -> {
-                    boolean isRead = readRepository.existsByStoryAndMember(story, memberRepository.getReferenceById(oauth2User.getId()));
+                    boolean isRead = readRepository.existsByStoryAndMember(story, memberRepository.getReferenceById(oauth2User.getMemberId()));
                     return new StorySummaryResponse(
                             story.getId(),
                             story.getPhotoUrl(),
@@ -85,7 +86,7 @@ public class StoryServiceImpl implements StoryService {
     }
 
     @Override
-    public List<PopupStoryResponse> findByPopup(Long popupId, int page, int size, CustomOAuth2User oauth2User) {
+    public List<PopupStoryResponse> findByPopup(Long popupId, int page, int size, PopPopOAuth2User oauth2User) {
 
         Popup popup = popupRepository.findById(popupId)
                 .orElseThrow(() -> new CustomException(StoryErrorCode.POPUP_NOT_FOUND));
@@ -93,7 +94,7 @@ public class StoryServiceImpl implements StoryService {
 
         return storyRepository.findByPopupOrderByCreatedAtDesc(popup, pageable).stream()
                 .map(story -> {
-                    boolean isRead = readRepository.existsByStoryAndMember(story, memberRepository.getReferenceById(oauth2User.getId()));
+                    boolean isRead = readRepository.existsByStoryAndMember(story, memberRepository.getReferenceById(oauth2User.getMemberId()));
                     return new PopupStoryResponse(
                             story.getId(),
                             story.getPhotoUrl(),
@@ -107,7 +108,7 @@ public class StoryServiceImpl implements StoryService {
     }
 
     @Override
-    public StoryDetailResponse findOneStory(Long popupId, Long storyId, CustomOAuth2User oauth2User) {
+    public StoryDetailResponse findOneStory(Long popupId, Long storyId, PopPopOAuth2User oauth2User) {
 
         popupRepository.findById(popupId)
                 .orElseThrow(() -> new CustomException(StoryErrorCode.POPUP_NOT_FOUND));
@@ -115,10 +116,10 @@ public class StoryServiceImpl implements StoryService {
                 .orElseThrow(() -> new CustomException(StoryErrorCode.STORY_NOT_FOUND));
 
         boolean alreadyRead = readRepository.existsByStoryAndMember(
-                story, memberRepository.getReferenceById(oauth2User.getId())
+                story, memberRepository.getReferenceById(oauth2User.getMemberId())
         );
         if (!alreadyRead) {
-            readRepository.save(StoryRead.of(story, memberRepository.getReferenceById(oauth2User.getId())));
+            readRepository.save(StoryRead.of(story, memberRepository.getReferenceById(oauth2User.getMemberId())));
         }
 
         return new StoryDetailResponse(
@@ -133,7 +134,7 @@ public class StoryServiceImpl implements StoryService {
 
     @Override
     @Transactional
-    public void delete(Long popupId, Long storyId, CustomOAuth2User oauth2User) {
+    public void delete(Long popupId, Long storyId, PopPopOAuth2User oauth2User) {
 
         popupRepository.findById(popupId)
                 .orElseThrow(() -> new CustomException(StoryErrorCode.POPUP_NOT_FOUND));
@@ -141,7 +142,7 @@ public class StoryServiceImpl implements StoryService {
         Story story = storyRepository.findById(storyId)
                 .orElseThrow(() -> new CustomException(StoryErrorCode.STORY_NOT_FOUND));
 
-        if (!story.getMember().getId().equals(oauth2User.getId())) {
+        if (!story.getMember().getId().equals(oauth2User.getMemberId())) {
             throw new CustomException(StoryErrorCode.INVALID_PERMISSION);
         }
 
