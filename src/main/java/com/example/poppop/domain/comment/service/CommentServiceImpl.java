@@ -65,11 +65,11 @@ public class CommentServiceImpl implements CommentService {
         commentRepository.save(comment);
 
         // 이벤트 발행 (루트 댓글 vs 대댓글 구분)
-        if (comment.getParent() == null) {
-            publisher.publishEvent(new CommentCreatedEvent(this, comment));
-        } else {
-            publisher.publishEvent(new ReplyCreatedEvent(this, comment));
-        }
+//        if (comment.getParent() == null) {
+//            publisher.publishEvent(new CommentCreatedEvent(this, comment));
+//        } else {
+//            publisher.publishEvent(new ReplyCreatedEvent(this, comment));
+//        }
     }
 
     @Override
