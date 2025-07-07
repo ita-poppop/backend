@@ -4,7 +4,6 @@ package com.example.poppop.global.config;
 import com.example.poppop.global.auth.filter.JwtAuthenticationFilter;
 import com.example.poppop.global.auth.handler.JwtAccessDeniedHandler;
 import com.example.poppop.global.auth.handler.JwtEntryPoint;
-import com.example.poppop.global.auth.handler.JwtLoginSuccessHandler;
 import com.example.poppop.global.auth.handler.JwtLogoutSuccessHandler;
 import lombok.RequiredArgsConstructor;
 import org.springframework.context.annotation.Bean;
@@ -27,7 +26,6 @@ import java.util.List;
 @EnableWebSecurity
 public class SecurityConfig {
 
-    private final JwtLoginSuccessHandler jwtLoginSuccessHandler;
     private final JwtEntryPoint jwtEntryPoint;
     private final JwtLogoutSuccessHandler jwtLogoutSuccessHandler;
     private final JwtAccessDeniedHandler jwtAccessDeniedHandler;

@@ -1,5 +1,6 @@
 package com.example.poppop.global.auth.service;
 
+import com.example.poppop.domain.member.entity.Member;
 import com.example.poppop.global.auth.dto.TokenDto;
 import com.example.poppop.global.auth.dto.UserInfo;
 import com.example.poppop.global.auth.model.PopPopOAuth2User;
@@ -38,32 +39,34 @@ public class JwtTokenProvider {
                 .build();
     }
 
-    public TokenDto createJwt(PopPopOAuth2User popPopOAuth2User) {
-        String accessTocken=generateAccessTocken(popPopOAuth2User, new Date());
+/*    public TokenDto createJwt(PopPopOAuth2User popPopOAuth2User, Long memebrId) {
+        String accessTocken=generateAccessTocken(popPopOAuth2User, memebrId ,new Date());
         String refreshTocken = generateRefreshTocken(popPopOAuth2User.getProviderId(), new Date());
 
         return TokenDto.builder()
                 .email(popPopOAuth2User.getEmail())
-                .accessTocken(accessTocken)
+                .(accessTocken)
                 .refreshTocken(refreshTocken)
                 .build();
-    }
+    }*/
 
-    private String generateAccessTocken(PopPopOAuth2User user, Date now) {
+    public String generateAccessTocken(Member member, Date now) {
         return Jwts.builder()
-                .subject(user.getNickName())
-                .claim("id", user.getProviderId())
-                .claim("nickName", user.getNickName())
-                .claim("email", user.getEmail())
-                .claim("ProfileImage",user.getProfileImage())
-                .issuedAt(new Date(now.getTime() + accessTockenExpiration))
+                .subject(member.getNickName())
+                .claim("memberId", member.getId())
+                .claim("providerId", member.getProviderId())
+                .claim("nickName", member.getNickName())
+                .claim("email", member.getEmail())
+                .claim("profileImage",member.getProfileImage())
+                .issuedAt(now) // 지금 시각이 발급 시각
+                .expiration(new Date(now.getTime() + accessTockenExpiration))
                 .signWith(secretKey)
                 .compact();
     }
 
-    private String generateRefreshTocken(String id, Date now) {
+    public String generateRefreshTocken(Member member, Date now) {
         return Jwts.builder()
-                .subject(id)
+                .subject(String.valueOf(member.getId()))
                 .issuedAt(now)
                 .expiration(new Date(now.getTime() + refreshTockenExpiration))
                 .signWith(secretKey)
@@ -78,7 +81,7 @@ public class JwtTokenProvider {
         return refreshTockenExpiration;
     }
 
-    //JWT 토큰만으로 사용자 정보를 복원해야 하는 모든 상황에서 쓰임
+/*
     public UserInfo extractMemberDTOFromAccessTocken(String accessToken) {
         return UserInfo.builder()
                 .providerId(this.getProviderId(accessToken))
@@ -87,18 +90,7 @@ public class JwtTokenProvider {
                 .profileImage(this.getProfileImage(accessToken))
                 .build();
     }
-
-    /**
-     * 서명된 토큰 값을 파싱하여 payload를 추출
-     *
-     * public String getUsername(String token) {
-     *         return Jwts.parser().verifyWith(secretKey).build().parseSignedClaims(token).getPayload().get("username", String.class);
-     *     }
-     *     에서 반복되는 Jwts.parser().verifyWith(secretKey).build().parseSignedClaims(token).getPayload()을 모듈화
-     *
-     * @param //token
-     * @return claims(payload)
-     */
+*/
 
     public Claims getPayload(String token) {
         return jwtParser
@@ -106,12 +98,16 @@ public class JwtTokenProvider {
                 .getPayload();
     }
 
+    public Long getMemberId(String token) {
+        return getPayload(token).get("memberId", Long.class);
+    }
+
     public String getProviderId(String token) {
         return getPayload(token).get("providerId", String.class);
     }
 
     public String getNickName(String token) {
-        return getPayload(token).get("username", String.class);
+        return getPayload(token).get("nickName", String.class);
     }
 
     public String getEmail(String token) {

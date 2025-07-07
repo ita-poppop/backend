@@ -1,6 +1,8 @@
 package com.example.poppop.domain.popup.service;
 
+import com.example.poppop.domain.member.dto.MemberResponse;
 import com.example.poppop.domain.member.entity.CustomOAuth2User;
+import com.example.poppop.domain.member.entity.Member;
 import com.example.poppop.domain.member.service.MemberService;
 import com.example.poppop.domain.popup.dto.PopupDetailDto;
 import com.example.poppop.domain.popup.dto.PopupPlannedDto;
@@ -10,6 +12,7 @@ import com.example.poppop.domain.popup.dto.request.PopupSearchRequestDto;
 import com.example.poppop.domain.popup.entity.Popup;
 import com.example.poppop.domain.popup.repository.PopupRepository;
 import com.example.poppop.global.auth.model.PopPopOAuth2User;
+import com.example.poppop.global.auth.service.JwtService;
 import com.example.poppop.global.error.GlobalErrorCode;
 import com.example.poppop.global.error.exception.CustomException;
 import lombok.RequiredArgsConstructor;
@@ -36,6 +39,7 @@ public class PopupService {
     private final PopupRepository popupRepository;
     private final RedisTemplate<String, String> redisTemplate;
     private final PopupRedisService popupRedisService;
+    private final JwtService jwtService;
     private final MemberService memberService;
 
     // 팝업 상세 조회
@@ -46,9 +50,8 @@ public class PopupService {
     }
     // 팝업 조회수증가
     @Transactional
-    public void incrementViewCount(Long popupId, PopPopOAuth2User oAuth2User) {
-        String email = oAuth2User.getEmail();
-        Long memberId= memberService.getMemberInfo(email).getId();
+    public void incrementViewCount(Long popupId, PopPopOAuth2User user) {
+        Long memberId = user.getMemberId();
 
         String strMemberId = String.valueOf(memberId);
         String strPopupId = String.valueOf(popupId);
