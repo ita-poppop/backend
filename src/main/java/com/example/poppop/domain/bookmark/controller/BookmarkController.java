@@ -18,16 +18,13 @@ import java.util.List;
 public class BookmarkController {
 
     private final BookmarkService bookmarkService;
-    private final MemberService memberService;
 
     @GetMapping("/bookmarks")
     public ApiResponse<List<PopupBookmarkResponse>> findBookmarks(
             @AuthenticationPrincipal PopPopOAuth2User oAuth2User
     ) {
-        String email = oAuth2User.getEmail();
-        Long memberId= memberService.getMemberInfo(email).getId();
 
-        List<PopupBookmarkResponse> list = bookmarkService.findAllBookmarks(memberId);
+        List<PopupBookmarkResponse> list = bookmarkService.findAllBookmarks(oAuth2User);
 
         return ApiResponse.success(list);
     }
