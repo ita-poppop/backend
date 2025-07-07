@@ -88,6 +88,8 @@ jobs:
           DOCKERHUB_USERNAME: ${{ secrets.DOCKERHUB_USERNAME }}
           GEOCODING_ID: ${{ secrets.GEOCODING_ID }}
           GEOCODING_SECRET: ${{ secrets.GEOCODING_SECRET }}
+          AWS_S3_ACCESS_KEY: ${{ secrets.AWS_S3_ACCESS_KEY }}
+          AWS_S3_SECRET_KEY: ${{ secrets.AWS_S3_SECRET_KEY }}
 
         with:
           host: ${{ secrets.EC2_HOST }}
@@ -95,7 +97,7 @@ jobs:
           key: ${{ secrets.EC2_SSH_KEY }}
 
           # compose.yml 안에서 ${MYSQLDB_*}, ${DOCKERHUB_USERNAME} 변수를 쓰므로 전달
-          envs: MYSQLDB_USERNAME,MYSQLDB_PASSWORD,MYSQLDB_ROOT_PASSWORD,DOCKERHUB_USERNAME,GEOCODING_ID,GEOCODING_SECRET
+          envs: MYSQLDB_USERNAME,MYSQLDB_PASSWORD,MYSQLDB_ROOT_PASSWORD,DOCKERHUB_USERNAME,GEOCODING_ID,GEOCODING_SECRET,AWS_S3_ACCESS_KEY,AWS_S3_SECRET_KEY
 
           script: |
             set -e
