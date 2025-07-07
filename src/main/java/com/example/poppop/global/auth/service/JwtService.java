@@ -91,6 +91,11 @@ public class JwtService {
     }
 
     public Long getMemberIdFromAccessToken(String token) {
-        return jwtTokenProvider.getMemberId(token);
+        Long memberId = jwtTokenProvider.getMemberId(token);
+        if (memberId == null) {
+            throw new CustomException(GlobalErrorCode.UNAUTHORIZED, "토큰에서 멤버 ID를 추출할 수 없습니다.");
+        }
+        log.info(memberId.toString(), "멤버 id 확인");
+        return memberId;
     }
 }
