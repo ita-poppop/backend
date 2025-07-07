@@ -4,11 +4,11 @@ import com.example.poppop.domain.bookmark.dto.response.PopupBookmarkResponse;
 import com.example.poppop.domain.bookmark.entity.Bookmark;
 import com.example.poppop.domain.bookmark.error.BookmarkErrorCode;
 import com.example.poppop.domain.bookmark.repository.BookmarkRepository;
-import com.example.poppop.domain.member.entity.CustomOAuth2User;
 import com.example.poppop.domain.member.entity.Member;
 import com.example.poppop.domain.member.repository.MemberRepository;
 import com.example.poppop.domain.popup.entity.Popup;
 import com.example.poppop.domain.popup.repository.PopupRepository;
+import com.example.poppop.global.auth.model.PopPopOAuth2User;
 import com.example.poppop.global.error.exception.CustomException;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
@@ -26,8 +26,11 @@ public class BookmarkServiceImpl implements BookmarkService {
     private final PopupRepository popupRepository;
 
     @Override
-    public List<PopupBookmarkResponse> findAllBookmarks(CustomOAuth2User oauth2User) {
-        Member member = memberRepository.findById(oauth2User.getId())
+    public List<PopupBookmarkResponse> findAllBookmarks(Long memberId) {
+
+//        Member member = memberRepository.findById(oauth2User.getId())
+//                .orElseThrow(() -> new CustomException(BookmarkErrorCode.MEMBER_NOT_FOUND));
+        Member member = memberRepository.findById(memberId)
                 .orElseThrow(() -> new CustomException(BookmarkErrorCode.MEMBER_NOT_FOUND));
 
         return bookmarkRepository.findAllByMember(member).stream()
@@ -37,8 +40,11 @@ public class BookmarkServiceImpl implements BookmarkService {
 
     @Override
     @Transactional
-    public void toggleBookmark(Long popupId, CustomOAuth2User oauth2User) {
-        Member member = memberRepository.findById(oauth2User.getId())
+    public void toggleBookmark(Long popupId, Long memberId) {
+
+//        Member member = memberRepository.findById(oauth2User.getId())
+//                .orElseThrow(() -> new CustomException(BookmarkErrorCode.MEMBER_NOT_FOUND));
+        Member member = memberRepository.findById(memberId)
                 .orElseThrow(() -> new CustomException(BookmarkErrorCode.MEMBER_NOT_FOUND));
         Popup popup = popupRepository.findById(popupId)
                 .orElseThrow(() -> new CustomException(BookmarkErrorCode.POPUP_NOT_FOUND));
@@ -52,8 +58,11 @@ public class BookmarkServiceImpl implements BookmarkService {
 
     @Override
     @Transactional
-    public void deleteBookmark(Long popupId, CustomOAuth2User oauth2User) {
-        Member member = memberRepository.findById(oauth2User.getId())
+    public void deleteBookmark(Long popupId, Long memberId) {
+
+//        Member member = memberRepository.findById(oauth2User.getId())
+//                .orElseThrow(() -> new CustomException(BookmarkErrorCode.MEMBER_NOT_FOUND));
+        Member member = memberRepository.findById(memberId)
                 .orElseThrow(() -> new CustomException(BookmarkErrorCode.MEMBER_NOT_FOUND));
         Popup popup = popupRepository.findById(popupId)
                 .orElseThrow(() -> new CustomException(BookmarkErrorCode.POPUP_NOT_FOUND));

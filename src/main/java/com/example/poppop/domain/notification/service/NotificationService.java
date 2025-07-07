@@ -22,6 +22,8 @@ public class NotificationService {
      * 특정 회원에게 단독 푸시
      */
     public void sendToMember(Long memberId, String title, String body, Map<String, String> data) {
+
+        // 해당 회원이 사용하는 모든 기기들의 토큰을 불러와서 이 기기들에 모두 알림을 전송하기 위한 코드
         List<DeviceToken> tokens = tokenRepository.findAllByMember(
                 memberRepository.getReferenceById(memberId));
 
@@ -51,6 +53,7 @@ public class NotificationService {
     /**
      * 주제(topic) 푸시 (ex. "news", "all")
      */
+    // 추후 전체 공지나 마케팅 알림 같은 푸시를 보낼때 사용(현재 사용X)
     public void sendToTopic(String topic, String title, String body) {
         Message message = Message.builder()
                 .setTopic(topic)

@@ -1,5 +1,5 @@
 services:
-  backend:
+  ita-backend:
     image: "${DOCKERHUB_USERNAME}/ita-backend:latest"
     #build: .
     container_name: ita-backend
@@ -20,6 +20,8 @@ services:
 #        condition: service_healthy
       poppop-cache:
         condition: service_healthy
+    networks:
+      - default
 
 #  poppop-db:
 #    image: mysql
@@ -48,3 +50,30 @@ services:
       test: [ "CMD", "redis-cli", "ping" ]
       interval: 5s
       retries: 10
+    networks:
+      - default
+
+  nginx:
+    image: nginx:latest
+    container_name: ita-nginx
+    restart: always
+    ports:
+      # 외부 80번 포트를 nginx 컨테이너의 80번 포트로 포워딩
+      - "80:80"
+      - "443:443"
+    depends_on:
+      - ita-backend
+    volumes:
+      # 1) 기본 default.conf를 아예 빈 파일로 대체
+      - /dev/null:/etc/nginx/conf.d/default.conf:ro
+      # 2) 우리 poppop.conf만 추가
+      # 위에서 만든 nginx 설정 파일을 컨테이너에 마운트
+      - ./nginx/poppop.conf:/etc/nginx/conf.d/poppop.conf:ro
+      # ← 인증서 전체를 로드
+      - /etc/letsencrypt:/etc/letsencrypt:ro
+    networks:
+      - default
+
+networks:
+  default:
+    driver: bridge
