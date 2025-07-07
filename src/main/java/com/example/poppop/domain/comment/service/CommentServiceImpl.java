@@ -14,6 +14,7 @@ import com.example.poppop.domain.member.entity.Member;
 import com.example.poppop.domain.member.repository.MemberRepository;
 import com.example.poppop.domain.review.entity.Review;
 import com.example.poppop.domain.review.repository.ReviewRepository;
+import com.example.poppop.global.auth.model.PopPopOAuth2User;
 import com.example.poppop.global.error.exception.CustomException;
 import lombok.RequiredArgsConstructor;
 import org.springframework.context.ApplicationEventPublisher;
@@ -37,9 +38,9 @@ public class CommentServiceImpl implements CommentService {
 
     @Override
     @Transactional
-    public void create(Long reviewId, CommentCreateRequest dto, CustomOAuth2User oauth2user) {
+    public void create(Long reviewId, CommentCreateRequest dto, PopPopOAuth2User oauth2user) {
 
-        Member member = memberRepository.findById(oauth2user.getId())
+        Member member = memberRepository.findById(oauth2user.getMemberId())
                 .orElseThrow(() -> new CustomException(CommentErrorCode.MEMBER_NOT_FOUND));
 
         Review review = reviewRepository.findById(reviewId)
@@ -139,12 +140,12 @@ public class CommentServiceImpl implements CommentService {
 
     @Override
     @Transactional
-    public void update(Long commentId, CommentUpdateRequest dto, CustomOAuth2User oauth2user) {
+    public void update(Long commentId, CommentUpdateRequest dto, PopPopOAuth2User oauth2user) {
 
         Comment comment = commentRepository.findById(commentId)
                 .orElseThrow(() -> new CustomException(CommentErrorCode.COMMENT_NOT_FOUND));
 
-        if (!comment.getMember().getId().equals(oauth2user.getId()))
+        if (!comment.getMember().getId().equals(oauth2user.getMemberId()))
             throw new CustomException(CommentErrorCode.INVALID_PERMISSION);
 
         comment.updateContent(dto.content());
@@ -152,12 +153,12 @@ public class CommentServiceImpl implements CommentService {
 
     @Override
     @Transactional
-    public void delete(Long commentId, CustomOAuth2User oauth2user) {
+    public void delete(Long commentId, PopPopOAuth2User oauth2user) {
 
         Comment comment = commentRepository.findById(commentId)
                 .orElseThrow(() -> new CustomException(CommentErrorCode.COMMENT_NOT_FOUND));
 
-        if (!comment.getMember().getId().equals(oauth2user.getId()))
+        if (!comment.getMember().getId().equals(oauth2user.getMemberId()))
             throw new CustomException(CommentErrorCode.INVALID_PERMISSION);
 
         comment.softDelete();

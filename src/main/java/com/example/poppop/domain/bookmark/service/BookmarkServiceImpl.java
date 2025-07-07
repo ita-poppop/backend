@@ -26,11 +26,9 @@ public class BookmarkServiceImpl implements BookmarkService {
     private final PopupRepository popupRepository;
 
     @Override
-    public List<PopupBookmarkResponse> findAllBookmarks(Long memberId) {
+    public List<PopupBookmarkResponse> findAllBookmarks(PopPopOAuth2User oAuth2User) {
 
-//        Member member = memberRepository.findById(oauth2User.getId())
-//                .orElseThrow(() -> new CustomException(BookmarkErrorCode.MEMBER_NOT_FOUND));
-        Member member = memberRepository.findById(memberId)
+        Member member = memberRepository.findById(oAuth2User.getMemberId())
                 .orElseThrow(() -> new CustomException(BookmarkErrorCode.MEMBER_NOT_FOUND));
 
         return bookmarkRepository.findAllByMember(member).stream()
@@ -40,11 +38,9 @@ public class BookmarkServiceImpl implements BookmarkService {
 
     @Override
     @Transactional
-    public void toggleBookmark(Long popupId, Long memberId) {
+    public void toggleBookmark(Long popupId, PopPopOAuth2User oAuth2User) {
 
-//        Member member = memberRepository.findById(oauth2User.getId())
-//                .orElseThrow(() -> new CustomException(BookmarkErrorCode.MEMBER_NOT_FOUND));
-        Member member = memberRepository.findById(memberId)
+        Member member = memberRepository.findById(oAuth2User.getMemberId())
                 .orElseThrow(() -> new CustomException(BookmarkErrorCode.MEMBER_NOT_FOUND));
         Popup popup = popupRepository.findById(popupId)
                 .orElseThrow(() -> new CustomException(BookmarkErrorCode.POPUP_NOT_FOUND));
@@ -58,11 +54,9 @@ public class BookmarkServiceImpl implements BookmarkService {
 
     @Override
     @Transactional
-    public void deleteBookmark(Long popupId, Long memberId) {
+    public void deleteBookmark(Long popupId, PopPopOAuth2User oAuth2User) {
 
-//        Member member = memberRepository.findById(oauth2User.getId())
-//                .orElseThrow(() -> new CustomException(BookmarkErrorCode.MEMBER_NOT_FOUND));
-        Member member = memberRepository.findById(memberId)
+        Member member = memberRepository.findById(oAuth2User.getMemberId())
                 .orElseThrow(() -> new CustomException(BookmarkErrorCode.MEMBER_NOT_FOUND));
         Popup popup = popupRepository.findById(popupId)
                 .orElseThrow(() -> new CustomException(BookmarkErrorCode.POPUP_NOT_FOUND));

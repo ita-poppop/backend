@@ -7,7 +7,7 @@ import java.util.List;
 
 public interface BookmarkService {
 
-    List<PopupBookmarkResponse> findAllBookmarks(Long memberId);
-    void toggleBookmark(Long popupId, Long memberId);
-    void deleteBookmark(Long popupId, Long memberId);
+    List<PopupBookmarkResponse> findAllBookmarks(PopPopOAuth2User oAuth2User);
+    void toggleBookmark(Long popupId, PopPopOAuth2User oAuth2User);
+    void deleteBookmark(Long popupId, PopPopOAuth2User oAuth2User);
 }

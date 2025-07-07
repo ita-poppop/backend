@@ -9,6 +9,7 @@ import com.example.poppop.domain.comment.repository.CommentRepository;
 import com.example.poppop.domain.member.entity.CustomOAuth2User;
 import com.example.poppop.domain.member.entity.Member;
 import com.example.poppop.domain.member.repository.MemberRepository;
+import com.example.poppop.global.auth.model.PopPopOAuth2User;
 import com.example.poppop.global.error.exception.CustomException;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
@@ -24,9 +25,9 @@ public class CommentLikeServiceImpl implements CommentLikeService {
     private final MemberRepository memberRepository;
 
     @Override
-    public CommentLikeResponse toggle(Long commentId, CustomOAuth2User oauth2User) {
+    public CommentLikeResponse toggle(Long commentId, PopPopOAuth2User oauth2User) {
 
-        Member member = memberRepository.findById(oauth2User.getId())
+        Member member = memberRepository.findById(oauth2User.getMemberId())
                 .orElseThrow(() -> new CustomException(CommentLikeErrorCode.MEMBER_NOT_FOUND));
 
         Comment comment = commentRepository.findById(commentId)

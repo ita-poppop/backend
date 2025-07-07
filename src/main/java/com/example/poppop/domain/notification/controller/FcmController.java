@@ -3,6 +3,7 @@ package com.example.poppop.domain.notification.controller;
 import com.example.poppop.domain.member.entity.CustomOAuth2User;
 import com.example.poppop.domain.notification.dto.request.FcmTokenRequest;
 import com.example.poppop.domain.notification.service.FcmService;
+import com.example.poppop.global.auth.model.PopPopOAuth2User;
 import com.example.poppop.global.common.ApiResponse;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
@@ -20,7 +21,7 @@ public class FcmController {
     @PostMapping("/token")
     public ApiResponse<Void> registerToken(
             @RequestBody @Valid FcmTokenRequest request,
-            @AuthenticationPrincipal CustomOAuth2User oauth2User) {
+            @AuthenticationPrincipal PopPopOAuth2User oauth2User) {
 
         fcmService.registerToken(oauth2User, request.token());
         return ApiResponse.successMessage("토큰 등록 완료");
@@ -30,7 +31,7 @@ public class FcmController {
     @DeleteMapping("/token")
     public ApiResponse<Void> removeToken(
             @RequestBody @Valid FcmTokenRequest request,
-            @AuthenticationPrincipal CustomOAuth2User oauth2User) {
+            @AuthenticationPrincipal PopPopOAuth2User oauth2User) {
 
         fcmService.removeToken(oauth2User, request.token());
         return ApiResponse.successMessage("토큰 삭제 완료");

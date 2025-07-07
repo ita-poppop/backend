@@ -37,10 +37,8 @@ public class BookmarkController {
             @PathVariable @Positive Long popupId,
             @AuthenticationPrincipal PopPopOAuth2User oAuth2User
     ) {
-        String email = oAuth2User.getEmail();
-        Long memberId= memberService.getMemberInfo(email).getId();
 
-        bookmarkService.toggleBookmark(popupId, memberId);
+        bookmarkService.toggleBookmark(popupId, oAuth2User);
         return ApiResponse.successMessage("즐겨찾기 상태가 변경되었습니다.");
     }
 
@@ -49,10 +47,8 @@ public class BookmarkController {
             @PathVariable @Positive Long popupId,
             @AuthenticationPrincipal PopPopOAuth2User oAuth2User
     ) {
-        String email = oAuth2User.getEmail();
-        Long memberId= memberService.getMemberInfo(email).getId();
 
-        bookmarkService.deleteBookmark(popupId, memberId);
+        bookmarkService.deleteBookmark(popupId, oAuth2User);
         return ApiResponse.successMessage("즐겨찾기가 삭제되었습니다.");
     }
 }
