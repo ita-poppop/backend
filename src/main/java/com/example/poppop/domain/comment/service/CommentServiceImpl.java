@@ -6,6 +6,8 @@ import com.example.poppop.domain.comment.dto.response.CommentListResponse;
 import com.example.poppop.domain.comment.dto.response.CommentResponse;
 import com.example.poppop.domain.comment.entity.Comment;
 import com.example.poppop.domain.comment.error.CommentErrorCode;
+import com.example.poppop.domain.comment.event.CommentCreatedEvent;
+import com.example.poppop.domain.comment.event.ReplyCreatedEvent;
 import com.example.poppop.domain.comment.repository.CommentRepository;
 import com.example.poppop.domain.member.entity.CustomOAuth2User;
 import com.example.poppop.domain.member.entity.Member;
@@ -14,6 +16,7 @@ import com.example.poppop.domain.review.entity.Review;
 import com.example.poppop.domain.review.repository.ReviewRepository;
 import com.example.poppop.global.error.exception.CustomException;
 import lombok.RequiredArgsConstructor;
+import org.springframework.context.ApplicationEventPublisher;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.domain.Sort;
@@ -30,6 +33,7 @@ public class CommentServiceImpl implements CommentService {
     private final CommentRepository commentRepository;
     private final ReviewRepository reviewRepository;
     private final MemberRepository memberRepository;
+    private final ApplicationEventPublisher publisher;
 
     @Override
     @Transactional
@@ -58,6 +62,13 @@ public class CommentServiceImpl implements CommentService {
         if (parent != null) parent.addChild(comment);
 
         commentRepository.save(comment);
+
+        // 이벤트 발행 (루트 댓글 vs 대댓글 구분)
+        if (comment.getParent() == null) {
+            publisher.publishEvent(new CommentCreatedEvent(this, comment));
+        } else {
+            publisher.publishEvent(new ReplyCreatedEvent(this, comment));
+        }
     }
 
     @Override

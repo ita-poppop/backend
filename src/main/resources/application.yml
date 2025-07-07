@@ -44,7 +44,6 @@ naver:
     client-id: ${GEOCODING_ID}
     client-secret: ${GEOCODING_SECRET}
 
-<<<<<<< Updated upstream
 jwt:
   access-tocken-expiration: 3600000
   refresh-tocken-expiration: 1209600000
@@ -52,11 +51,13 @@ jwt:
 
 client:
   url: http://localhost:3000
-=======
+
 aws:
   s3:
     bucket: ita-poppop-storybucket
     region: ap-northeast-2
     access-key: ${AWS_S3_ACCESS_KEY}
     secret-key: ${AWS_S3_SECRET_KEY}
->>>>>>> Stashed changes
+
+firebase:
+  service-account-file: /src/main/resources/firebase-adminsdk.json
