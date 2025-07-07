@@ -5,6 +5,7 @@ import com.example.poppop.domain.story.dto.request.StoryCreateRequest;
 import com.example.poppop.domain.story.dto.response.PopupStoryResponse;
 import com.example.poppop.domain.story.dto.response.StoryDetailResponse;
 import com.example.poppop.domain.story.service.StoryService;
+import com.example.poppop.global.auth.model.PopPopOAuth2User;
 import com.example.poppop.global.common.ApiResponse;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
@@ -35,7 +36,7 @@ public class StoryController {
     public ApiResponse<Void> createStory(
             @PathVariable Long popupId,
             @ModelAttribute @Valid StoryCreateRequest request,
-            @AuthenticationPrincipal CustomOAuth2User oauth2User) {
+            @AuthenticationPrincipal PopPopOAuth2User oauth2User) {
 
         storyService.create(popupId, request, oauth2User);
         return ApiResponse.successMessage("스토리가 등록되었습니다.");
@@ -46,7 +47,7 @@ public class StoryController {
             @PathVariable Long popupId,
             @RequestParam @Valid Integer page,
             @RequestParam @Valid Integer size,
-            @AuthenticationPrincipal CustomOAuth2User oauth2User) {
+            @AuthenticationPrincipal PopPopOAuth2User oauth2User) {
 
         return ApiResponse.success(
                 storyService.findByPopup(popupId, page, size, oauth2User)
@@ -57,7 +58,7 @@ public class StoryController {
     public ApiResponse<StoryDetailResponse> getStoryDetail(
             @PathVariable Long popupId,
             @PathVariable Long storyId,
-            @AuthenticationPrincipal CustomOAuth2User oauth2User) {
+            @AuthenticationPrincipal PopPopOAuth2User oauth2User) {
 
         return ApiResponse.success(
                 storyService.findOneStory(popupId, storyId, oauth2User)
@@ -68,9 +69,9 @@ public class StoryController {
     public ApiResponse<Void> deleteStory(
             @PathVariable Long popupId,
             @PathVariable Long storyId,
-            @AuthenticationPrincipal CustomOAuth2User user) {
+            @AuthenticationPrincipal PopPopOAuth2User oauth2User) {
 
-        storyService.delete(popupId, storyId, user);
+        storyService.delete(popupId, storyId, oauth2User);
         return ApiResponse.successMessage("스토리가 삭제되었습니다.");
     }
 }
