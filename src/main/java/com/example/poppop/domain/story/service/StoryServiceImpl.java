@@ -15,6 +15,7 @@ import com.example.poppop.domain.story.error.StoryErrorCode;
 import com.example.poppop.domain.story.repository.StoryReadRepository;
 import com.example.poppop.domain.story.repository.StoryRepository;
 import com.example.poppop.global.error.exception.CustomException;
+import com.example.poppop.global.s3.service.S3Service;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
@@ -29,6 +30,7 @@ import java.util.List;
 @Transactional(readOnly = true)
 public class StoryServiceImpl implements StoryService {
 
+    private final S3Service s3Service;
     private final StoryRepository storyRepository;
     private final StoryReadRepository readRepository;
     private final MemberRepository memberRepository;
@@ -43,8 +45,12 @@ public class StoryServiceImpl implements StoryService {
         Popup popup = popupRepository.findById(popupId)
                 .orElseThrow(() -> new CustomException(StoryErrorCode.POPUP_NOT_FOUND));
 
+        // S3 업로드하고 URL 받기
+        String photoUrl = s3Service.uploadFile(request.photo(), "stories");
+
         Story story = Story.builder()
-                .photoUrl(request.photoUrl())
+//                .photoUrl(request.photoUrl())
+                .photoUrl(photoUrl)
                 .estimatedWaitTime(request.estimatedWaitTime())
                 .estimatedWaitCount(request.estimatedWaitCount())
                 .member(member)
@@ -139,6 +145,10 @@ public class StoryServiceImpl implements StoryService {
             throw new CustomException(StoryErrorCode.INVALID_PERMISSION);
         }
 
-        story.softDelete();
+//        story.softDelete();
+        // 1) 기존 사진 S3에서 삭제
+        s3Service.deleteFile(story.getPhotoUrl());
+        // 2) 스토리 하드 삭제
+        storyRepository.delete(story);
     }
 }

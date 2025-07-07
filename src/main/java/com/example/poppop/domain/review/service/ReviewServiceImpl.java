@@ -15,6 +15,7 @@ import com.example.poppop.domain.review.entity.ReviewImage;
 import com.example.poppop.domain.review.error.ReviewErrorCode;
 import com.example.poppop.domain.review.repository.ReviewLikeRepository;
 import com.example.poppop.domain.review.repository.ReviewRepository;
+import com.example.poppop.global.auth.model.PopPopOAuth2User;
 import com.example.poppop.global.error.exception.CustomException;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.PageRequest;
@@ -38,9 +39,9 @@ public class ReviewServiceImpl implements ReviewService {
 
     @Override
     @Transactional
-    public void create(Long popupId, ReviewCreateRequest dto, CustomOAuth2User oauth2User) {
+    public void create(Long popupId, ReviewCreateRequest dto, PopPopOAuth2User oauth2User) {
 
-        Long memberId = oauth2User.getId();
+        Long memberId = oauth2User.getMemberId();
 
         Member member = memberRepository.findById(memberId)
                 .orElseThrow(() -> new CustomException(ReviewErrorCode.MEMBER_NOT_FOUND));
@@ -102,12 +103,12 @@ public class ReviewServiceImpl implements ReviewService {
 
     @Override
     @Transactional
-    public void update(Long reviewId, ReviewUpdateRequest dto, CustomOAuth2User oauth2User) {
+    public void update(Long reviewId, ReviewUpdateRequest dto, PopPopOAuth2User oauth2User) {
 
         Review review = reviewRepository.findById(reviewId)
                 .orElseThrow(() -> new CustomException(ReviewErrorCode.REVIEW_NOT_FOUND));
 
-        if (!review.getMember().getId().equals(oauth2User.getId())) {
+        if (!review.getMember().getId().equals(oauth2User.getMemberId())) {
             throw new CustomException(ReviewErrorCode.INVALID_PERMISSION);
         }
 
@@ -116,12 +117,12 @@ public class ReviewServiceImpl implements ReviewService {
 
     @Override
     @Transactional
-    public void delete(Long reviewId, CustomOAuth2User oauth2User) {
+    public void delete(Long reviewId, PopPopOAuth2User oauth2User) {
 
         Review review = reviewRepository.findById(reviewId)
                 .orElseThrow(() -> new CustomException(ReviewErrorCode.REVIEW_NOT_FOUND));
 
-        if (!review.getMember().getId().equals(oauth2User.getId())) {
+        if (!review.getMember().getId().equals(oauth2User.getMemberId())) {
             throw new CustomException(ReviewErrorCode.INVALID_PERMISSION);
         }
 

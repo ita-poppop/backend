@@ -4,6 +4,7 @@ import com.example.poppop.domain.member.entity.CustomOAuth2User;
 import com.example.poppop.domain.review.dto.response.ReviewLikeResponse;
 import com.example.poppop.domain.review.service.ReviewLikeService;
 import com.example.poppop.domain.review.swagger.ToggleReviewLike;
+import com.example.poppop.global.auth.model.PopPopOAuth2User;
 import com.example.poppop.global.common.ApiResponse;
 import lombok.RequiredArgsConstructor;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
@@ -23,7 +24,7 @@ public class ReviewLikeController {
     @PostMapping("/toggle")
     public ApiResponse<ReviewLikeResponse> toggleLike(
             @PathVariable Long reviewId,
-            @AuthenticationPrincipal CustomOAuth2User oauth2User) {
+            @AuthenticationPrincipal PopPopOAuth2User oauth2User) {
 
         ReviewLikeResponse res = likeService.toggle(reviewId, oauth2User);
         return ApiResponse.success(res, res.liked() ? "좋아요!" : "좋아요 취소");

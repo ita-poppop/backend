@@ -4,6 +4,7 @@ import com.example.poppop.domain.comment.dto.response.CommentLikeResponse;
 import com.example.poppop.domain.comment.service.CommentLikeService;
 import com.example.poppop.domain.comment.swagger.ToggleCommentLike;
 import com.example.poppop.domain.member.entity.CustomOAuth2User;
+import com.example.poppop.global.auth.model.PopPopOAuth2User;
 import com.example.poppop.global.common.ApiResponse;
 import lombok.RequiredArgsConstructor;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
@@ -23,7 +24,7 @@ public class CommentLikeController {
     @PostMapping("/toggle")
     public ApiResponse<CommentLikeResponse> toggle(
             @PathVariable Long commentId,
-            @AuthenticationPrincipal CustomOAuth2User oauth2User) {
+            @AuthenticationPrincipal PopPopOAuth2User oauth2User) {
 
         CommentLikeResponse res = likeService.toggle(commentId, oauth2User);
         return ApiResponse.success(res,

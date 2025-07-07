@@ -9,6 +9,7 @@ import com.example.poppop.domain.review.entity.ReviewLike;
 import com.example.poppop.domain.review.error.ReviewLikeErrorCode;
 import com.example.poppop.domain.review.repository.ReviewLikeRepository;
 import com.example.poppop.domain.review.repository.ReviewRepository;
+import com.example.poppop.global.auth.model.PopPopOAuth2User;
 import com.example.poppop.global.error.exception.CustomException;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
@@ -24,9 +25,9 @@ public class ReviewLikeServiceImpl implements ReviewLikeService {
     private final MemberRepository memberRepository;
 
     @Override
-    public ReviewLikeResponse toggle(Long reviewId, CustomOAuth2User oauth2User) {
+    public ReviewLikeResponse toggle(Long reviewId, PopPopOAuth2User oauth2User) {
 
-        Member member = memberRepository.findById(oauth2User.getId())
+        Member member = memberRepository.findById(oauth2User.getMemberId())
                 .orElseThrow(() -> new CustomException(ReviewLikeErrorCode.MEMBER_NOT_FOUND));
 
         Review review = reviewRepository.findById(reviewId)

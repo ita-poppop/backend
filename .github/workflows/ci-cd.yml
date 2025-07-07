@@ -67,15 +67,15 @@ jobs:
       - name: Push Docker image
         run: docker push $IMAGE_NAME
 
-      # 3) docker-compose.yml만 EC2로 복사
-      - name: Copy compose to EC2
+      # 3) docker-compose.yml, nginx EC2로 복사
+      - name: Copy compose & nginx config to EC2
         uses: appleboy/scp-action@v0.1.7
 
         with:
           host: ${{ secrets.EC2_HOST }}
           username: ${{ secrets.EC2_USER }}
           key: ${{ secrets.EC2_SSH_KEY }}
-          source: "compose.yml"
+          source: "compose.yml,nginx/poppop.conf"
           target: "~/poppop"
 
       # 4) EC2로 배포 (compose pull/up)
@@ -88,6 +88,8 @@ jobs:
           DOCKERHUB_USERNAME: ${{ secrets.DOCKERHUB_USERNAME }}
           GEOCODING_ID: ${{ secrets.GEOCODING_ID }}
           GEOCODING_SECRET: ${{ secrets.GEOCODING_SECRET }}
+          AWS_S3_ACCESS_KEY: ${{ secrets.AWS_S3_ACCESS_KEY }}
+          AWS_S3_SECRET_KEY: ${{ secrets.AWS_S3_SECRET_KEY }}
 
         with:
           host: ${{ secrets.EC2_HOST }}
@@ -95,15 +97,15 @@ jobs:
           key: ${{ secrets.EC2_SSH_KEY }}
 
           # compose.yml 안에서 ${MYSQLDB_*}, ${DOCKERHUB_USERNAME} 변수를 쓰므로 전달
-          envs: MYSQLDB_USERNAME,MYSQLDB_PASSWORD,MYSQLDB_ROOT_PASSWORD,DOCKERHUB_USERNAME,GEOCODING_ID,GEOCODING_SECRET
+          envs: MYSQLDB_USERNAME,MYSQLDB_PASSWORD,MYSQLDB_ROOT_PASSWORD,DOCKERHUB_USERNAME,GEOCODING_ID,GEOCODING_SECRET,AWS_S3_ACCESS_KEY,AWS_S3_SECRET_KEY
 
           script: |
             set -e
             cd ~/poppop
 
             # 기존 단일 컨테이너(처음 한 번만 있으면) 정리
-            docker stop ita-backend 2>/dev/null || true
-            docker rm   ita-backend 2>/dev/null || true
+            docker stop ita-backend ita-nginx 2>/dev/null || true
+            docker rm ita-backend ita-nginx 2>/dev/null || true
 
             # 최신 이미지 가져와 재배치
             docker compose pull

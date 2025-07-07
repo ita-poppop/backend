@@ -7,6 +7,7 @@ import com.example.poppop.domain.review.dto.response.ReviewDetailResponse;
 import com.example.poppop.domain.review.dto.response.ReviewResponse;
 import com.example.poppop.domain.review.service.ReviewService;
 import com.example.poppop.domain.review.swagger.*;
+import com.example.poppop.global.auth.model.PopPopOAuth2User;
 import com.example.poppop.global.common.ApiResponse;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
@@ -27,7 +28,7 @@ public class ReviewController {
     public ApiResponse<Void> createReview(
             @PathVariable Long popupId,
             @RequestBody @Valid ReviewCreateRequest request,
-            @AuthenticationPrincipal CustomOAuth2User oauth2User) {
+            @AuthenticationPrincipal PopPopOAuth2User oauth2User) {
 
         reviewService.create(popupId, request, oauth2User);
         return ApiResponse.successMessage("리뷰가 등록되었습니다.");
@@ -59,7 +60,7 @@ public class ReviewController {
     public ApiResponse<Void> updateReview(
             @PathVariable Long reviewId,
             @RequestBody @Valid ReviewUpdateRequest request,
-            @AuthenticationPrincipal CustomOAuth2User oauth2User) {
+            @AuthenticationPrincipal PopPopOAuth2User oauth2User) {
 
         reviewService.update(reviewId, request, oauth2User);
         return ApiResponse.successMessage("리뷰가 수정되었습니다.");
@@ -69,7 +70,7 @@ public class ReviewController {
     @PostMapping("/{reviewId}/delete")
     public ApiResponse<Void> deleteReview(
             @PathVariable Long reviewId,
-            @AuthenticationPrincipal CustomOAuth2User oauth2User) {
+            @AuthenticationPrincipal PopPopOAuth2User oauth2User) {
 
         reviewService.delete(reviewId, oauth2User);
         return ApiResponse.successMessage("리뷰가 삭제되었습니다.");

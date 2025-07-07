@@ -51,3 +51,13 @@ jwt:
 
 client:
   url: http://localhost:3000
+
+aws:
+  s3:
+    bucket: ita-poppop-storybucket
+    region: ap-northeast-2
+    access-key: ${AWS_S3_ACCESS_KEY}
+    secret-key: ${AWS_S3_SECRET_KEY}
+
+firebase:
+  service-account-file: /src/main/resources/firebase-adminsdk.json
