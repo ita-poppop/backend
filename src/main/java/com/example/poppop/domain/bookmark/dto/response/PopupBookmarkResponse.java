@@ -8,6 +8,7 @@ import java.time.temporal.ChronoUnit;
 public record PopupBookmarkResponse(
         Long popupId,
         String title,
+        String image,
         String location,
         LocalDate startDate,
         LocalDate endDate,
@@ -18,6 +19,7 @@ public record PopupBookmarkResponse(
         return new PopupBookmarkResponse(
                 popup.getId(),
                 popup.getTitle(),
+                popup.getImage(),
                 popup.getLocation(),
                 popup.getStartDate(),
                 popup.getEndDate(),
