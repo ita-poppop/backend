@@ -46,7 +46,6 @@ public class MemberController {
         return ApiResponse.success(tokenDto);
     }
 
-
     // 현재 로그인한 회원 정보 조회
     @Operation(
             summary = "내 정보 조회",

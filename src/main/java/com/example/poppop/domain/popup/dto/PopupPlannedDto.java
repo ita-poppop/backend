@@ -1,8 +1,10 @@
 package com.example.poppop.domain.popup.dto;
 
 import com.example.poppop.domain.popup.entity.Popup;
+import lombok.AccessLevel;
 import lombok.Builder;
 import lombok.Getter;
+import lombok.NoArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 
 import java.time.LocalDate;
@@ -11,6 +13,7 @@ import java.time.temporal.ChronoUnit;
 
 @Getter
 @Slf4j
+@NoArgsConstructor(access = AccessLevel.PROTECTED)
 public class PopupPlannedDto {
     private long id;
     private String title;

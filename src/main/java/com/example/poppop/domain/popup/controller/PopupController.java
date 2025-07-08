@@ -22,10 +22,10 @@ public class PopupController {
     @GetMapping("/{popupId}")
     public ApiResponse<PopupDetailDto> getDetailPopup(
             @PathVariable Long popupId,
-            @AuthenticationPrincipal PopPopOAuth2User user
+            @RequestHeader("Authorization") String token
             ) {
         PopupDetailDto detailPopup = popupService.getDetailPopup(popupId);
-        popupService.incrementViewCount(popupId, user);
+        popupService.incrementViewCount(popupId, token);
         return ApiResponse.success(detailPopup);
     }
 
