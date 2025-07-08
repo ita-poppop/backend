@@ -108,6 +108,7 @@ public class StoryServiceImpl implements StoryService {
     }
 
     @Override
+    @Transactional
     public StoryDetailResponse findOneStory(Long popupId, Long storyId, PopPopOAuth2User oauth2User) {
 
         popupRepository.findById(popupId)
