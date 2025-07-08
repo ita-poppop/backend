@@ -1,7 +1,7 @@
 services:
   ita-backend:
     image: "${DOCKERHUB_USERNAME}/ita-backend:latest"
-#    build: .
+    #build: .
     container_name: ita-backend
     restart: always
     ports:

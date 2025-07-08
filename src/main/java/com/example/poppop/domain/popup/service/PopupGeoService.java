@@ -89,6 +89,7 @@ public class PopupGeoService {
                 if (latLng != null && latLng.length > 1) {
                     popup.setLongitude(latLng[0]); // 경도 x
                     popup.setLatitude(latLng[1]); // 위도 y
+                    log.info("id={}, lat={}, lng={}", popup.getId(), latLng[1], latLng[0]);
                 }
             } catch (Exception e) {
                 log.error("예외 발생: id={}, 주소={}, error={}", popup.getId(), popup.getLocation(), e.getMessage());

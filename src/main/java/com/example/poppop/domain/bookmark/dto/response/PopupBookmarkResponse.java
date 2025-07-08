@@ -11,6 +11,7 @@ public record PopupBookmarkResponse(
         String location,
         LocalDate startDate,
         LocalDate endDate,
+        String imageUrl,
         long daysToStart
 ) {
     public static PopupBookmarkResponse from(Popup popup) {
@@ -21,6 +22,7 @@ public record PopupBookmarkResponse(
                 popup.getLocation(),
                 popup.getStartDate(),
                 popup.getEndDate(),
+                popup.getImage(),
                 dayToStart
         );
     }

@@ -4,10 +4,7 @@ import com.example.poppop.domain.member.dto.MemberResponse;
 import com.example.poppop.domain.member.entity.CustomOAuth2User;
 import com.example.poppop.domain.member.entity.Member;
 import com.example.poppop.domain.member.service.MemberService;
-import com.example.poppop.domain.popup.dto.PopupDetailDto;
-import com.example.poppop.domain.popup.dto.PopupPlannedDto;
-import com.example.poppop.domain.popup.dto.PopupSearchDto;
-import com.example.poppop.domain.popup.dto.PopupTrendDto;
+import com.example.poppop.domain.popup.dto.*;
 import com.example.poppop.domain.popup.dto.request.PopupSearchRequestDto;
 import com.example.poppop.domain.popup.entity.Popup;
 import com.example.poppop.domain.popup.repository.PopupRepository;
@@ -19,14 +16,18 @@ import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.cache.annotation.Cacheable;
 import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Pageable;
 import org.springframework.data.redis.core.RedisTemplate;
 import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import java.io.UnsupportedEncodingException;
+import java.math.BigDecimal;
 import java.time.Duration;
 import java.time.LocalDate;
 import java.util.Arrays;
+import java.util.Collections;
 import java.util.List;
 import java.util.stream.Collectors;
 
@@ -41,6 +42,7 @@ public class PopupService {
     private final PopupRedisService popupRedisService;
     private final JwtService jwtService;
     private final MemberService memberService;
+    private final PopupGeoService popupGeoService;
 
     // 팝업 상세 조회
     public PopupDetailDto getDetailPopup(Long id) {
@@ -123,21 +125,57 @@ public class PopupService {
     private Duration calculateTimeOut(int minutes) {
         return Duration.ofMinutes(minutes);
     }
-/*
+
     // 검색한 팝업 조회
-    public List<PopupSearchDto> getSearchedPopups(String content, Integer page, Integer size) {
+    public List<PopupSearchedNearbyDto> getSearchedPopups(String content, Integer page, Integer size) throws UnsupportedEncodingException {
         // 만약 db에서 찾을 수 있는 이름의 팝업이라면 db에서 찾아서 반환해주고 그게 아니라면 서울시 강남구라면
         // 받은 content(위치 주소를를 지오코딩으로 위경도를 바꿔주고 마찬가지로 팝업 반환
+        Pageable pageable = PageRequest.of(page - 1, size);
 
+        // 팝업 이름으로 검색 (LIKE 검색)
+        List<Popup> searchedPopups = popupRepository.findSearchedPopups(content, pageable);
 
+        if (searchedPopups != null && !searchedPopups.isEmpty()) {
+            // 팝업 이름으로 결과가 있으면 바로 반환 + 근데 해당 팝업 위치 위경도 반환하고 3km내 반경에 있는 주위 팝업 반환
+            Popup searchedPopup = searchedPopups.get(0); // 첫 번째 결과 기준
+            List<Popup> popups = findNearByPopups(searchedPopup,pageable);
+            return popups.stream()
+                    .map(PopupSearchedNearbyDto::from)
+                    .collect(Collectors.toList());
+        }
 
-        PageRequest pageable = PageRequest.of(page - 1, size);
-        List<Popup> searchedPopups = popupRepository.findSearchedPopups(title, pageable);
-        return searchedPopups.stream()
-                .map(PopupSearchDto::from)
-                .collect(Collectors.toList());
+        // 결과가 없으면 주소로 간주, 지오코딩 후 주변 팝업 검색
+        BigDecimal[] coordinate = popupGeoService.getLatLng(content);
+        if (coordinate != null) {
+            BigDecimal lng=coordinate[0]; //경도
+            BigDecimal lat = coordinate[1]; //위도
+            log.info(lat+","+lng);
+            Double radius = 3.0;
+            List<Popup> popupsWithinRadius = popupRepository.findPopupsWithinRadius(lat, lng, radius,pageable);
+            if (popupsWithinRadius.isEmpty()) {
+                return Collections.emptyList(); // null 대신 빈 리스트 반환
+            }
+            return popupsWithinRadius.stream()
+                    .map(PopupSearchedNearbyDto::from)
+                    .collect(Collectors.toList());
+        }
+        //모든 경우에 대해 빈 리스트 반환 보장
+        return Collections.emptyList();
     }
-    //현재 위경도를 기준으로 3km내 반경에 있는 주위 팝업을 반환 없으면 (이건 따로 메서드 분리) 없으면 5km이내 팝업도 없으면
-*/
 
+    //현재 위경도를 기준으로 3km내 반경에 있는 주위 팝업을 반환 없으면 (이건 따로 메서드 분리) 없으면 5km이내 팝업도 없으면
+    private List<Popup> findNearByPopups(Popup popup, Pageable pageable) {
+        BigDecimal lng = popup.getLongitude();
+        BigDecimal lat = popup.getLatitude();
+        // 3km 이내 팝업 조회
+        Double radius = 3.0;
+        List<Popup> popupsWithin3km = popupRepository.findPopupsWithinRadius(lat, lng, radius,pageable);
+        if (!popupsWithin3km.isEmpty()) {
+            return popupsWithin3km;
+        }
+        // 5km 이내 팝업 조회 (3km 내에 없을 때만)
+        Double radius5 = 5.0;
+        List<Popup> popupsWithin5km = popupRepository.findPopupsWithinRadius(lat, lng, radius5,pageable);
+        return popupsWithin5km; // 없으면 빈 리스트 반환
+    }
 }

@@ -10,6 +10,8 @@ import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.web.bind.annotation.*;
+
+import java.io.UnsupportedEncodingException;
 import java.util.List;
 
 @RestController
@@ -52,21 +54,21 @@ public class PopupController {
         return ApiResponse.success(trendPopups);
     }
 
-/*    // 팝업 검색 우선은 %like%로 검색하도록 이후에 실시간 검색,검색어 자동완성으로 개선
+    // 팝업 검색 우선은 %like%로 검색하도록 이후에 실시간 검색,검색어 자동완성으로 개선
     @Operation(
             summary = "팝업 검색 조회 API",
             description = "팝업 이름 또는 EX) 서울 강남구 와 같은 위치를 받아 팝업을 반환합니다")
     @GetMapping("/search")
-    public ApiResponse<List<PopupSearchDto>> getSearchedPopups(
+    public ApiResponse<List<PopupSearchedNearbyDto>> getSearchedPopups(
             @RequestParam String content,
             @RequestParam @Valid Integer page,
             @RequestParam @Valid Integer size
-    ) {
-        List<PopupSearchDto> popupSearchedDtos = popupService.getSearchedPopups(content, page, size);
-        return ApiResponse.success(popupSearchedDtos);
+    ) throws UnsupportedEncodingException {
+        List<PopupSearchedNearbyDto> popupSearchedNearbyDtos = popupService.getSearchedPopups(content, page, size);
+        return ApiResponse.success(popupSearchedNearbyDtos);
     }
 
-    @Operation(
+/*    @Operation(
             summary = "현재 자신의 위치 기반 팝업 조회 API",
             description = "팝업 검색창 진입시 현재 위치를 기반으로 팝업을 조회합니다")
     @GetMapping("/location")

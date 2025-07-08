@@ -2,10 +2,13 @@ package com.example.poppop.domain.popup.repository;
 
 import com.example.poppop.domain.popup.entity.Popup;
 import io.lettuce.core.dynamic.annotation.Param;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Query;
 
+import java.math.BigDecimal;
 import java.time.LocalDate;
 import java.util.List;
 
@@ -21,8 +24,21 @@ public interface PopupRepository extends JpaRepository<Popup, Long> {
     // 팝업 제목으로 검색 (부분 일치)
     @Query("SELECT p FROM Popup p WHERE p.title LIKE CONCAT('%', :title, '%') ORDER BY p.startDate ASC")
     List<Popup> findSearchedPopups(@Param("title") String title, Pageable pageable);
-    /*@Modifying
-    @Transactional
-    @Query("UPDATE Post p SET p.viewCnt = p.viewCnt + 1 WHERE p.postId = :postId")
-    void incrementViewCount(@Param("postId") Long postId);*/
+
+    @Query(
+            value = "SELECT *, (6371 * acos(cos(radians(:lat)) * cos(radians(latitude)) * cos(radians(longitude) - radians(:lng)) + sin(radians(:lat)) * sin(radians(latitude)))) AS distance " +
+                    "FROM popup " +
+                    "HAVING distance <= :radius " +
+                    "ORDER BY distance",
+            countQuery = "SELECT count(*) FROM popup " +
+                    "WHERE (6371 * acos(cos(radians(:lat)) * cos(radians(latitude)) * cos(radians(longitude) - radians(:lng)) + sin(radians(:lat)) * sin(radians(latitude)))) <= :radius",
+            nativeQuery = true
+    )
+    List<Popup> findPopupsWithinRadius(
+            @Param("lat") BigDecimal lat,
+            @Param("lng") BigDecimal lng,
+            @Param("radius") double radius,
+            Pageable pageable
+    );
+
 }
