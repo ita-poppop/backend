@@ -35,7 +35,7 @@ public class StoryController {
             )
     )
     @PostMapping(
-            path = "/stories",                         // ② 메서드 레벨: stories만
+            path = "/stories",
             consumes = MediaType.MULTIPART_FORM_DATA_VALUE
     )
     public ApiResponse<Void> createStory(
