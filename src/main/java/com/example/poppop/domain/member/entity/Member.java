@@ -19,7 +19,7 @@ public class Member extends BaseEntity {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
-    @Column(name = "profile_url", length = 50)
+    @Column(name = "profile_url", length = 512)
     private String profileUrl;
 
     @Column(length = 50, nullable = false)
