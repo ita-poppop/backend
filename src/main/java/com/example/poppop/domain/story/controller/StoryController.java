@@ -19,22 +19,11 @@ import org.springframework.web.bind.annotation.*;
 import java.util.List;
 
 @RestController
-@RequestMapping("/api/v1/popups/{popupId}/stories")
+@RequestMapping("/api/v1/popups/{popupId}")
 @RequiredArgsConstructor
 @Validated
 public class StoryController {
     private final StoryService storyService;
-
-//    @PostMapping
-//    public ApiResponse<Void> createStory(
-//            @PathVariable Long popupId,
-//            @RequestBody @Valid StoryCreateRequest request,
-//            @AuthenticationPrincipal CustomOAuth2User oauth2User) {
-//
-//        storyService.create(popupId, request, oauth2User);
-//        return ApiResponse.successMessage("스토리가 등록되었습니다.");
-//    }
-
 
     @Operation(
             summary = "스토리 등록",
@@ -46,48 +35,49 @@ public class StoryController {
             )
     )
     @PostMapping(
-            path = "/api/v1/popups/{popupId}/stories",
+            path = "/stories",                         // ② 메서드 레벨: stories만
             consumes = MediaType.MULTIPART_FORM_DATA_VALUE
     )
     public ApiResponse<Void> createStory(
             @PathVariable Long popupId,
             @ModelAttribute @Valid StoryCreateRequest request,
-            @AuthenticationPrincipal PopPopOAuth2User oauth2User) {
-
+            @AuthenticationPrincipal PopPopOAuth2User oauth2User
+    ) {
         storyService.create(popupId, request, oauth2User);
         return ApiResponse.successMessage("스토리가 등록되었습니다.");
     }
 
-    @GetMapping
+    @GetMapping("/stories")
     public ApiResponse<List<PopupStoryResponse>> getPopupStories(
             @PathVariable Long popupId,
             @RequestParam @Valid Integer page,
             @RequestParam @Valid Integer size,
-            @AuthenticationPrincipal PopPopOAuth2User oauth2User) {
-
+            @AuthenticationPrincipal PopPopOAuth2User oauth2User
+    ) {
         return ApiResponse.success(
                 storyService.findByPopup(popupId, page, size, oauth2User)
         );
     }
 
-    @GetMapping("/{storyId}")
+    @GetMapping("/stories/{storyId}")
     public ApiResponse<StoryDetailResponse> getStoryDetail(
             @PathVariable Long popupId,
             @PathVariable Long storyId,
-            @AuthenticationPrincipal PopPopOAuth2User oauth2User) {
-
+            @AuthenticationPrincipal PopPopOAuth2User oauth2User
+    ) {
         return ApiResponse.success(
                 storyService.findOneStory(popupId, storyId, oauth2User)
         );
     }
 
-    @PostMapping("/{storyId}/delete")
+    @PostMapping("/stories/{storyId}/delete")
     public ApiResponse<Void> deleteStory(
             @PathVariable Long popupId,
             @PathVariable Long storyId,
-            @AuthenticationPrincipal PopPopOAuth2User oauth2User) {
-
+            @AuthenticationPrincipal PopPopOAuth2User oauth2User
+    ) {
         storyService.delete(popupId, storyId, oauth2User);
         return ApiResponse.successMessage("스토리가 삭제되었습니다.");
     }
 }
+
