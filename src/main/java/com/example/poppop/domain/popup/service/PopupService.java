@@ -50,9 +50,8 @@ public class PopupService {
     }
     // 팝업 조회수증가
     @Transactional
-    public void incrementViewCount(Long popupId, String token) {
-        Member member = memberService.getMemberByAccessToken(token);
-        Long memberId = member.getId();
+    public void incrementViewCount(Long popupId, PopPopOAuth2User user) {
+        Long memberId = user.getMemberId();
         String strMemberId = String.valueOf(memberId);
         String strPopupId = String.valueOf(popupId);
 
