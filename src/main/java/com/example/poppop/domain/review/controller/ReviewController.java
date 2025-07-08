@@ -11,6 +11,7 @@ import com.example.poppop.global.auth.model.PopPopOAuth2User;
 import com.example.poppop.global.common.ApiResponse;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
+import org.springframework.http.MediaType;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.web.bind.annotation.*;
 
@@ -24,10 +25,12 @@ public class ReviewController {
     private final ReviewService reviewService;
 
     @PostReview
-    @PostMapping
+    @PostMapping(
+            consumes = MediaType.MULTIPART_FORM_DATA_VALUE
+    )
     public ApiResponse<Void> createReview(
             @PathVariable Long popupId,
-            @RequestBody @Valid ReviewCreateRequest request,
+            @ModelAttribute @Valid ReviewCreateRequest request,
             @AuthenticationPrincipal PopPopOAuth2User oauth2User) {
 
         reviewService.create(popupId, request, oauth2User);

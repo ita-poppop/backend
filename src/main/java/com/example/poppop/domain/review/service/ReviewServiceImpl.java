@@ -1,7 +1,6 @@
 package com.example.poppop.domain.review.service;
 
 import com.example.poppop.domain.comment.repository.CommentRepository;
-import com.example.poppop.domain.member.entity.CustomOAuth2User;
 import com.example.poppop.domain.member.entity.Member;
 import com.example.poppop.domain.member.repository.MemberRepository;
 import com.example.poppop.domain.popup.entity.Popup;
@@ -17,6 +16,7 @@ import com.example.poppop.domain.review.repository.ReviewLikeRepository;
 import com.example.poppop.domain.review.repository.ReviewRepository;
 import com.example.poppop.global.auth.model.PopPopOAuth2User;
 import com.example.poppop.global.error.exception.CustomException;
+import com.example.poppop.global.s3.service.S3Service;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
@@ -36,6 +36,7 @@ public class ReviewServiceImpl implements ReviewService {
     private final PopupRepository popupRepository;
     private final ReviewLikeRepository reviewLikeRepository;
     private final CommentRepository commentRepository;
+    private final S3Service s3Service;
 
     @Override
     @Transactional
@@ -55,8 +56,11 @@ public class ReviewServiceImpl implements ReviewService {
                 .popup(popup)
                 .build();
 
-        dto.imageUrls().forEach(url ->
-                review.addImage(ReviewImage.of(url, review)));
+        dto.images().forEach(file -> {
+            String url = s3Service.uploadFile(file, "review-images");
+            review.addImage(ReviewImage.of(url, review));
+        });
+        // 추후에 리뷰별로 이미지를 관리할 수 있도록 리팩터링
 
         reviewRepository.save(review);
     }
