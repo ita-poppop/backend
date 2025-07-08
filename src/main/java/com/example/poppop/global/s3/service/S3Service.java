@@ -40,7 +40,7 @@ public class S3Service {
                     .key(key)
                     .contentType(file.getContentType())
                     .contentLength(file.getSize())
-                    .acl(ObjectCannedACL.PUBLIC_READ)  // public 읽기 허용 (ACL 사용 시)
+//                    .acl(ObjectCannedACL.PUBLIC_READ)  // public 읽기 허용 (ACL 사용 시)
                     .build();
 
             // 2) 업로드
