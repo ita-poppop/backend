@@ -37,6 +37,7 @@ public class MemberService {
     @Transactional
     public TokenDto signupAndAuthenticate(UserInfo userInfo, HttpServletResponse response) {
         Member member = registerIfNotExists(userInfo);
+        //::todo:: 기존 회원이면 원래 있던 엑세스 토큰 리프레시 토큰을 반납
 
         PopPopOAuth2User principal = new PopPopOAuth2User(member.getId());
 

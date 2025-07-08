@@ -123,14 +123,21 @@ public class PopupService {
     private Duration calculateTimeOut(int minutes) {
         return Duration.ofMinutes(minutes);
     }
+/*
     // 검색한 팝업 조회
-    public List<PopupSearchDto> getSearchedPopups(String title, Integer page, Integer size) {
+    public List<PopupSearchDto> getSearchedPopups(String content, Integer page, Integer size) {
+        // 만약 db에서 찾을 수 있는 이름의 팝업이라면 db에서 찾아서 반환해주고 그게 아니라면 서울시 강남구라면
+        // 받은 content(위치 주소를를 지오코딩으로 위경도를 바꿔주고 마찬가지로 팝업 반환
+
+
+
         PageRequest pageable = PageRequest.of(page - 1, size);
         List<Popup> searchedPopups = popupRepository.findSearchedPopups(title, pageable);
         return searchedPopups.stream()
                 .map(PopupSearchDto::from)
                 .collect(Collectors.toList());
     }
-    //
+    //현재 위경도를 기준으로 3km내 반경에 있는 주위 팝업을 반환 없으면 (이건 따로 메서드 분리) 없으면 5km이내 팝업도 없으면
+*/
 
 }
