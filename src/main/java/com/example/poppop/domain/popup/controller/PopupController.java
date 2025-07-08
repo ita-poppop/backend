@@ -54,6 +54,7 @@ public class PopupController {
         return ApiResponse.success(trendPopups);
     }
 
+
     // 팝업 검색 우선은 %like%로 검색하도록 이후에 실시간 검색,검색어 자동완성으로 개선
     @Operation(
             summary = "팝업 검색 조회 API",
