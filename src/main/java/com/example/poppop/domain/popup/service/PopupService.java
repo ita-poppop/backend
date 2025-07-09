@@ -48,7 +48,7 @@ public class PopupService {
                 .orElseThrow(() -> new CustomException(GlobalErrorCode.NOT_FOUND));
         return PopupDetailDto.from(DetailPopup);
     }
-    // 팝업 조회수증가
+
     @Transactional
     public void incrementViewCount(Long popupId, PopPopOAuth2User user) {
         Long memberId = user.getMemberId();

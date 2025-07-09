@@ -4,7 +4,6 @@ import com.example.poppop.domain.popup.dto.*;
 import com.example.poppop.domain.popup.service.PopupService;
 import com.example.poppop.global.auth.model.PopPopOAuth2User;
 import com.example.poppop.global.common.ApiResponse;
-import com.google.type.Decimal;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import jakarta.validation.Valid;
