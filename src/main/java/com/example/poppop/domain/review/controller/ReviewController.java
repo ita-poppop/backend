@@ -13,6 +13,7 @@ import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.MediaType;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
+import org.springframework.security.oauth2.core.user.OAuth2User;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
@@ -58,14 +59,28 @@ public class ReviewController {
         );
     }
 
+//    @UpdateReview
+//    @PostMapping("/{reviewId}/patch")
+//    public ApiResponse<Void> updateReview(
+//            @PathVariable Long reviewId,
+//            @RequestBody @Valid ReviewUpdateRequest request,
+//            @AuthenticationPrincipal PopPopOAuth2User oauth2User) {
+//
+//        reviewService.update(reviewId, request, oauth2User);
+//        return ApiResponse.successMessage("리뷰가 수정되었습니다.");
+//    }
+
     @UpdateReview
-    @PostMapping("/{reviewId}/patch")
+    @PostMapping(
+            path     = "/{reviewId}/patch",
+            consumes = MediaType.MULTIPART_FORM_DATA_VALUE
+    )
     public ApiResponse<Void> updateReview(
             @PathVariable Long reviewId,
-            @RequestBody @Valid ReviewUpdateRequest request,
-            @AuthenticationPrincipal PopPopOAuth2User oauth2User) {
-
-        reviewService.update(reviewId, request, oauth2User);
+            @ModelAttribute @Valid ReviewUpdateRequest request,
+            @AuthenticationPrincipal PopPopOAuth2User user
+    ) {
+        reviewService.update(reviewId, request, user);
         return ApiResponse.successMessage("리뷰가 수정되었습니다.");
     }
 

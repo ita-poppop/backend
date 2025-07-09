@@ -1,6 +1,7 @@
 package com.example.poppop.domain.review.service;
 
 import com.example.poppop.domain.comment.repository.CommentRepository;
+import com.example.poppop.domain.member.entity.CustomOAuth2User;
 import com.example.poppop.domain.member.entity.Member;
 import com.example.poppop.domain.member.repository.MemberRepository;
 import com.example.poppop.domain.popup.entity.Popup;
@@ -23,6 +24,7 @@ import org.springframework.data.domain.Pageable;
 import org.springframework.data.domain.Sort;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
+import org.springframework.web.multipart.MultipartFile;
 
 import java.util.List;
 
@@ -40,7 +42,7 @@ public class ReviewServiceImpl implements ReviewService {
 
     @Override
     @Transactional
-    public void create(Long popupId, ReviewCreateRequest dto, PopPopOAuth2User oauth2User) {
+    public void create(Long popupId, ReviewCreateRequest request, PopPopOAuth2User oauth2User) {
 
         Long memberId = oauth2User.getMemberId();
 
@@ -51,12 +53,12 @@ public class ReviewServiceImpl implements ReviewService {
                 .orElseThrow(() -> new CustomException(ReviewErrorCode.POPUP_NOT_FOUND));
 
         Review review = Review.builder()
-                .content(dto.content())
+                .content(request.content())
                 .member(member)
                 .popup(popup)
                 .build();
 
-        dto.images().forEach(file -> {
+        request.images().forEach(file -> {
             String url = s3Service.uploadFile(file, "review-images");
             review.addImage(ReviewImage.of(url, review));
         });
@@ -105,9 +107,23 @@ public class ReviewServiceImpl implements ReviewService {
         return ReviewDetailResponse.from(review, likeCount, commentCount);
     }
 
+//    @Override
+//    @Transactional
+//    public void update(Long reviewId, ReviewUpdateRequest request, PopPopOAuth2User oauth2User) {
+//
+//        Review review = reviewRepository.findById(reviewId)
+//                .orElseThrow(() -> new CustomException(ReviewErrorCode.REVIEW_NOT_FOUND));
+//
+//        if (!review.getMember().getId().equals(oauth2User.getMemberId())) {
+//            throw new CustomException(ReviewErrorCode.INVALID_PERMISSION);
+//        }
+//
+//        review.updateContent(request.content());
+//    }
+
     @Override
     @Transactional
-    public void update(Long reviewId, ReviewUpdateRequest dto, PopPopOAuth2User oauth2User) {
+    public void update(Long reviewId, ReviewUpdateRequest request, PopPopOAuth2User oauth2User) {
 
         Review review = reviewRepository.findById(reviewId)
                 .orElseThrow(() -> new CustomException(ReviewErrorCode.REVIEW_NOT_FOUND));
@@ -116,7 +132,28 @@ public class ReviewServiceImpl implements ReviewService {
             throw new CustomException(ReviewErrorCode.INVALID_PERMISSION);
         }
 
-        review.updateContent(dto.content());
+        // 내용 업데이트 (null 이 아닐 때만)
+        if (request.content() != null) {
+            review.updateContent(request.content());
+        }
+
+        // 사진 업데이트
+        List<MultipartFile> newImages = request.images();
+        if (newImages != null && !newImages.isEmpty()) {
+            // 기존 이미지 S3 + DB 삭제
+            review.getImages().forEach(img -> {
+                // S3 에서 오브젝트 삭제 (optional)
+                s3Service.deleteFile(img.getUrl());
+            });
+            review.getImages().clear(); // orphanRemoval=true 이므로 DB에서도 삭제
+
+            // 새 이미지 업로드 + 엔티티 연관
+            String dir = "review-images/" + reviewId;
+            for (MultipartFile file : newImages) {
+                String url = s3Service.uploadFile(file, dir);
+                review.addImage(ReviewImage.of(url, review));
+            }
+        }
     }
 
     @Override

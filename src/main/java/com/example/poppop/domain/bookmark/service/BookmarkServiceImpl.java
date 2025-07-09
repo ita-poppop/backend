@@ -11,6 +11,9 @@ import com.example.poppop.domain.popup.repository.PopupRepository;
 import com.example.poppop.global.auth.model.PopPopOAuth2User;
 import com.example.poppop.global.error.exception.CustomException;
 import lombok.RequiredArgsConstructor;
+import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Pageable;
+import org.springframework.data.domain.Sort;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -26,12 +29,14 @@ public class BookmarkServiceImpl implements BookmarkService {
     private final PopupRepository popupRepository;
 
     @Override
-    public List<PopupBookmarkResponse> findAllBookmarks(PopPopOAuth2User oAuth2User) {
+    public List<PopupBookmarkResponse> findAllBookmarks(PopPopOAuth2User oAuth2User, int page, int size) {
 
         Member member = memberRepository.findById(oAuth2User.getMemberId())
                 .orElseThrow(() -> new CustomException(BookmarkErrorCode.MEMBER_NOT_FOUND));
 
-        return bookmarkRepository.findAllByMember(member).stream()
+        Pageable pageable = PageRequest.of(page - 1, size, Sort.by(Sort.Direction.DESC, "createdAt"));
+
+        return bookmarkRepository.findAllByMember(member, pageable).stream()
                 .map(bmk -> PopupBookmarkResponse.from(bmk.getPopup()))
                 .toList();
     }

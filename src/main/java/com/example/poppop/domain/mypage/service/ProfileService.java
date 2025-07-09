@@ -6,6 +6,6 @@ import com.example.poppop.global.auth.model.PopPopOAuth2User;
 
 public interface ProfileService {
 
-    ProfileResponseDto getMyProfile(PopPopOAuth2User user);
+    ProfileResponseDto getMyProfile(PopPopOAuth2User user, int page, int size);
     void updateMyProfile(PopPopOAuth2User user, ProfileUpdateRequest request);
 }

@@ -5,6 +5,7 @@ import com.example.poppop.domain.bookmark.service.BookmarkService;
 import com.example.poppop.domain.member.service.MemberService;
 import com.example.poppop.global.auth.model.PopPopOAuth2User;
 import com.example.poppop.global.common.ApiResponse;
+import jakarta.validation.Valid;
 import jakarta.validation.constraints.Positive;
 import lombok.RequiredArgsConstructor;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
@@ -23,10 +24,12 @@ public class BookmarkController {
 
     @GetMapping("/bookmarks")
     public ApiResponse<List<PopupBookmarkResponse>> findBookmarks(
-            @AuthenticationPrincipal PopPopOAuth2User oAuth2User
+            @AuthenticationPrincipal PopPopOAuth2User oAuth2User,
+            @RequestParam @Valid Integer page,
+            @RequestParam @Valid Integer size
     ) {
 
-        List<PopupBookmarkResponse> list = bookmarkService.findAllBookmarks(oAuth2User);
+        List<PopupBookmarkResponse> list = bookmarkService.findAllBookmarks(oAuth2User, page, size);
 
         return ApiResponse.success(list);
     }
