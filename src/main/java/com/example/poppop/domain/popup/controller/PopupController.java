@@ -4,6 +4,7 @@ import com.example.poppop.domain.popup.dto.*;
 import com.example.poppop.domain.popup.service.PopupService;
 import com.example.poppop.global.auth.model.PopPopOAuth2User;
 import com.example.poppop.global.common.ApiResponse;
+import com.google.type.Decimal;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import jakarta.validation.Valid;
@@ -12,6 +13,7 @@ import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.web.bind.annotation.*;
 
 import java.io.UnsupportedEncodingException;
+import java.math.BigDecimal;
 import java.util.List;
 
 @RestController
@@ -69,12 +71,18 @@ public class PopupController {
         return ApiResponse.success(popupSearchedNearbyDtos);
     }
 
-/*    @Operation(
+    @Operation(
             summary = "현재 자신의 위치 기반 팝업 조회 API",
             description = "팝업 검색창 진입시 현재 위치를 기반으로 팝업을 조회합니다")
     @GetMapping("/location")
-    public ApiResponse<List<PopupSearchDto>> getPopupsByLocation() {
-        return null;
-    }*/
+    public ApiResponse<List<PopupSearchedNearbyDto>> getPopupsByLocation(
+            @RequestParam BigDecimal longitude,
+            @RequestParam BigDecimal latitude,
+            @RequestParam @Valid Integer page,
+            @RequestParam @Valid Integer size
+            ) {
+        List<PopupSearchedNearbyDto> popups = popupService.getPopupsByLocation(longitude, latitude, page, size);
+        return ApiResponse.success(popups);
+    }
 
 }

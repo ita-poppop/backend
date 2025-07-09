@@ -1,17 +1,15 @@
 package com.example.poppop.domain.popup.service;
 
-import com.example.poppop.domain.member.dto.MemberResponse;
-import com.example.poppop.domain.member.entity.CustomOAuth2User;
-import com.example.poppop.domain.member.entity.Member;
 import com.example.poppop.domain.member.service.MemberService;
 import com.example.poppop.domain.popup.dto.*;
-import com.example.poppop.domain.popup.dto.request.PopupSearchRequestDto;
 import com.example.poppop.domain.popup.entity.Popup;
 import com.example.poppop.domain.popup.repository.PopupRepository;
 import com.example.poppop.global.auth.model.PopPopOAuth2User;
 import com.example.poppop.global.auth.service.JwtService;
 import com.example.poppop.global.error.GlobalErrorCode;
 import com.example.poppop.global.error.exception.CustomException;
+import com.google.type.Decimal;
+import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.cache.annotation.Cacheable;
@@ -133,25 +131,23 @@ public class PopupService {
         Pageable pageable = PageRequest.of(page - 1, size);
 
         // 팝업 이름으로 검색 (LIKE 검색)
-        List<Popup> searchedPopups = popupRepository.findSearchedPopups(content);
+        List<Popup> searchedPopups = popupRepository.findSearchedPopups(content, pageable);
 
         if (searchedPopups != null && !searchedPopups.isEmpty()) {
-            // 팝업 이름으로 결과가 있으면 바로 반환 + 근데 해당 팝업 위치 위경도 반환하고 3km내 반경에 있는 주위 팝업 반환
-            Popup searchedPopup = searchedPopups.get(0); // 첫 번째 결과 기준
-            List<Popup> popups = findNearByPopups(searchedPopup,pageable);
-            return popups.stream()
+            // 팝업 이름으로 결과가 있으면 바로 반환
+            return searchedPopups.stream()
                     .map(PopupSearchedNearbyDto::from)
                     .collect(Collectors.toList());
         }
 
-        // 결과가 없으면 주소로 간주, 지오코딩 후 주변 팝업 검색
+        // 결과가 없으면 주소로 간주, 지오 후 주변 팝업 검색
         BigDecimal[] coordinate = popupGeoService.getLatLng(content);
         if (coordinate != null) {
-            BigDecimal lng=coordinate[0]; //경도
-            BigDecimal lat = coordinate[1]; //위도
+            BigDecimal lng=coordinate[0]; //경도 x축
+            BigDecimal lat = coordinate[1]; //위도 y축
             log.info(lat+","+lng);
             Double radius = 3.0;
-            List<Popup> popupsWithinRadius = popupRepository.findPopupsWithinRadius(lat, lng, radius,pageable);
+            List<Popup> popupsWithinRadius = popupRepository.findPopupsWithinRadius(lat, lng, radius, pageable);
             if (popupsWithinRadius.isEmpty()) {
                 return Collections.emptyList(); // null 대신 빈 리스트 반환
             }
@@ -163,13 +159,13 @@ public class PopupService {
         return Collections.emptyList();
     }
 
-    //현재 위경도를 기준으로 3km내 반경에 있는 주위 팝업을 반환 없으면 (이건 따로 메서드 분리) 없으면 5km이내 팝업도 없으면
+    //현재 위경도를 기준으로 3km내 반경에 있는 주위 팝업을 반환
     private List<Popup> findNearByPopups(Popup popup, Pageable pageable) {
         BigDecimal lng = popup.getLongitude();
         BigDecimal lat = popup.getLatitude();
         // 3km 이내 팝업 조회
         Double radius = 3.0;
-        List<Popup> popupsWithin3km = popupRepository.findPopupsWithinRadius(lat, lng, radius,pageable);
+        List<Popup> popupsWithin3km = popupRepository.findPopupsWithinRadius(lat, lng, radius, pageable);
         if (!popupsWithin3km.isEmpty()) {
             return popupsWithin3km;
         }
@@ -177,5 +173,26 @@ public class PopupService {
         Double radius5 = 5.0;
         List<Popup> popupsWithin5km = popupRepository.findPopupsWithinRadius(lat, lng, radius5,pageable);
         return popupsWithin5km; // 없으면 빈 리스트 반환
+    }
+
+    public List<PopupSearchedNearbyDto> getPopupsByLocation(BigDecimal longitude, BigDecimal latitude, Integer page, Integer size) {
+        Pageable pageable = PageRequest.of(page - 1, size);
+        Double radius = 3.0;
+        List<Popup> popupsWithin3km = popupRepository.findPopupsWithinRadius(latitude, longitude, radius, pageable);
+        if (!popupsWithin3km.isEmpty()) {
+           return popupsWithin3km.stream()
+                    .map(PopupSearchedNearbyDto::from)
+                    .collect(Collectors.toList());
+        }
+        // 5km 이내 팝업 조회 (3km 내에 없을 때만)
+        Double radius5 = 5.0;
+        List<Popup> popupsWithin5km = popupRepository.findPopupsWithinRadius(latitude, longitude, radius5, pageable);
+        if (!popupsWithin5km.isEmpty()) {
+            return popupsWithin5km.stream()
+                    .map(PopupSearchedNearbyDto::from)
+                    .collect(Collectors.toList());
+        }
+        // 5km 내에도 없으면 빈 리스트 반환
+        return Collections.emptyList();
     }
 }
