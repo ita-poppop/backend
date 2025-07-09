@@ -19,15 +19,15 @@ public class PopupPlannedDto {
     private String title;
     private String image;
     private String location; // 서울 성수동까지만
-    private String dDay;
+    private String dday;
 
     @Builder
-    public PopupPlannedDto(Long id, String title, String image, String location, String dDay) {
+    public PopupPlannedDto(Long id, String title, String image, String location, String dday) {
         this.id = id;
         this.title = title;
         this.image = image;
         this.location = location;
-        this.dDay = dDay;
+        this.dday = dday;
     }
 
     public static PopupPlannedDto from(Popup popup) {
@@ -36,14 +36,14 @@ public class PopupPlannedDto {
                 .title(popup.getTitle())
                 .image(popup.getImage())
                 .location(extractLocation(popup.getLocation()))
-                .dDay(createDday(popup.getStartDate()))
+                .dday(createDday(popup.getStartDate()))
                 .build();
     }
 
     private static String createDday(LocalDate startDate) {
         LocalDate today = LocalDate.now(); //2025-05-20
-        long dDay = ChronoUnit.DAYS.between(today, startDate);
-        return String.valueOf(dDay);
+        long dday = ChronoUnit.DAYS.between(today, startDate);
+        return String.valueOf(dday);
     }
 
     private static String extractLocation(String location) {

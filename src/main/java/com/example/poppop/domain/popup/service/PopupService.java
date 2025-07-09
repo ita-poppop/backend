@@ -133,7 +133,7 @@ public class PopupService {
         Pageable pageable = PageRequest.of(page - 1, size);
 
         // 팝업 이름으로 검색 (LIKE 검색)
-        List<Popup> searchedPopups = popupRepository.findSearchedPopups(content, pageable);
+        List<Popup> searchedPopups = popupRepository.findSearchedPopups(content);
 
         if (searchedPopups != null && !searchedPopups.isEmpty()) {
             // 팝업 이름으로 결과가 있으면 바로 반환 + 근데 해당 팝업 위치 위경도 반환하고 3km내 반경에 있는 주위 팝업 반환
