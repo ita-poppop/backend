@@ -6,18 +6,19 @@ import com.example.poppop.domain.mypage.dto.request.ProfileUpdateRequest;
 import com.example.poppop.domain.mypage.dto.response.ProfileResponseDto;
 import com.example.poppop.domain.mypage.error.MemberErrorCode;
 import com.example.poppop.domain.popup.entity.Popup;
-import com.example.poppop.domain.review.entity.Review;
 import com.example.poppop.domain.review.repository.ReviewLikeRepository;
 import com.example.poppop.domain.review.repository.ReviewRepository;
 import com.example.poppop.global.auth.model.PopPopOAuth2User;
 import com.example.poppop.global.error.exception.CustomException;
 import com.example.poppop.global.s3.service.S3Service;
 import lombok.RequiredArgsConstructor;
+import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Pageable;
+import org.springframework.data.domain.Sort;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.util.List;
-import java.util.stream.Collectors;
 
 @Service
 @RequiredArgsConstructor
@@ -29,41 +30,76 @@ public class ProfileServiceImpl implements ProfileService {
     private final ReviewLikeRepository reviewLikeRepository;
     private final S3Service s3Service;
 
-    @Override
-    public ProfileResponseDto getMyProfile(PopPopOAuth2User oauth2User) {
+//    @Override
+//    public ProfileResponseDto getMyProfile(PopPopOAuth2User oauth2User, int page, int size) {
+//
+//        Member member = memberRepository.findById(oauth2User.getMemberId())
+//                .orElseThrow(() -> new CustomException(MemberErrorCode.MEMBER_NOT_FOUND));
+//
+//        Pageable pageable = PageRequest.of(page - 1, size, Sort.by("createdAt").descending());
+//
+//        // 내 리뷰 목록
+//        List<Review> myReviews = reviewRepository
+//                .findByMemberAndIsDeletedFalseOrderByCreatedAtDesc(member, pageable);
+//
+//        // DTO 변환: 팝업 정보 + 내가 쓴 리뷰 총 개수
+//        List<ProfileResponseDto.ProfileReviewDto> reviews = myReviews.stream()
+//                .map(review -> {
+//                    Popup popup = review.getPopup();
+//                    // 팝업 대표 이미지: 리뷰 이미지 중 첫 번째 URL 또는 팝업 자체 필드
+//                    String popupImg = popup.getImage();
+//                    return new ProfileResponseDto.ProfileReviewDto(
+//                            review.getId(),
+//                            popupImg,
+//                            popup.getTitle(),
+//                            popup.getStartDate(),
+//                            popup.getEndDate()
+//                    );
+//                })
+//                .collect(Collectors.toList());
+//
+//        long reviewCount   = myReviews.size();
+//        long totalLikes    = myReviews.stream()
+//                .mapToLong(r -> reviewLikeRepository.countByReviewAndLikedTrue(r))
+//                .sum();
+//
+//        return ProfileResponseDto.of(
+//                member.getProfileUrl(),
+//                member.getUserName(),
+//                reviewCount,
+//                totalLikes,
+//                reviews
+//        );
+//    }
 
-        Member member = memberRepository.findById(oauth2User.getMemberId())
+    @Override
+    public ProfileResponseDto getMyProfile(PopPopOAuth2User user, int page, int size) {
+
+        Member member = memberRepository.findById(user.getMemberId())
                 .orElseThrow(() -> new CustomException(MemberErrorCode.MEMBER_NOT_FOUND));
 
-        // 내 리뷰 목록
-        List<Review> myReviews = reviewRepository
-                .findByMemberAndIsDeletedFalseOrderByCreatedAtDesc(member);
+        long totalReviews = reviewRepository.countByMemberAndIsDeletedFalse(member);
+        long totalLikes   = reviewLikeRepository.sumLikesByMember(member);
 
-        // DTO 변환: 팝업 정보 + 내가 쓴 리뷰 총 개수
-        List<ProfileResponseDto.ProfileReviewDto> reviews = myReviews.stream()
-                .map(review -> {
-                    Popup popup = review.getPopup();
-                    // 팝업 대표 이미지: 리뷰 이미지 중 첫 번째 URL 또는 팝업 자체 필드
-                    String popupImg = popup.getImage();
-                    return new ProfileResponseDto.ProfileReviewDto(
-                            review.getId(),
-                            popupImg,
-                            popup.getTitle(),
-                            popup.getStartDate(),
-                            popup.getEndDate()
-                    );
-                })
-                .collect(Collectors.toList());
-
-        long reviewCount   = myReviews.size();
-        long totalLikes    = myReviews.stream()
-                .mapToLong(r -> reviewLikeRepository.countByReviewAndLikedTrue(r))
-                .sum();
+        Pageable pageable = PageRequest.of(page - 1, size, Sort.by("createdAt").descending());
+        List<ProfileResponseDto.ProfileReviewDto> reviews =
+                reviewRepository
+                        .findByMemberAndIsDeletedFalseOrderByCreatedAtDesc(member, pageable).stream()
+                        .map(review -> {
+                            Popup popup = review.getPopup();
+                            return new ProfileResponseDto.ProfileReviewDto(
+                                    review.getId(),
+                                    popup.getImage(),
+                                    popup.getTitle(),
+                                    popup.getStartDate(),
+                                    popup.getEndDate()
+                            );
+                        }).toList();
 
         return ProfileResponseDto.of(
                 member.getProfileUrl(),
                 member.getUserName(),
-                reviewCount,
+                totalReviews,
                 totalLikes,
                 reviews
         );

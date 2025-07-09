@@ -3,7 +3,6 @@ package com.example.poppop.domain.mypage.controller;
 import com.example.poppop.domain.mypage.dto.request.ProfileUpdateRequest;
 import com.example.poppop.domain.mypage.dto.response.ProfileResponseDto;
 import com.example.poppop.domain.mypage.service.ProfileService;
-import com.example.poppop.domain.story.dto.request.StoryCreateRequest;
 import com.example.poppop.global.auth.model.PopPopOAuth2User;
 import com.example.poppop.global.common.ApiResponse;
 import io.swagger.v3.oas.annotations.Operation;
@@ -26,9 +25,11 @@ public class ProfileController {
 
     @GetMapping
     public ApiResponse<ProfileResponseDto> getMyProfile(
-            @AuthenticationPrincipal PopPopOAuth2User user
+            @AuthenticationPrincipal PopPopOAuth2User user,
+            @RequestParam @Valid Integer page,
+            @RequestParam @Valid Integer size
     ) {
-        ProfileResponseDto dto = profileService.getMyProfile(user);
+        ProfileResponseDto dto = profileService.getMyProfile(user, page, size);
         return ApiResponse.success(dto);
     }
 
