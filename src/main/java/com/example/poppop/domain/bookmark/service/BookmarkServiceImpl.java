@@ -67,7 +67,10 @@ public class BookmarkServiceImpl implements BookmarkService {
                 .orElseThrow(() -> new CustomException(BookmarkErrorCode.POPUP_NOT_FOUND));
 
         boolean existed = bookmarkRepository.findByMemberAndPopup(member, popup)
-                .map(bmk -> { bookmarkRepository.delete(bmk); return true; })
+                .map(bmk -> {
+                    bookmarkRepository.delete(bmk);
+                    return true;
+                })
                 .orElse(false);
 
         if (!existed) {
