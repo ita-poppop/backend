@@ -15,9 +15,15 @@ public record ReviewResponse(
         LocalDateTime createdAt,
         LocalDateTime updatedAt,
         long likeCount,
-        long commentCount
+        long commentCount,
+        boolean likedByUser
 ) {
-    public static ReviewResponse from(Review review, long likeCount, long commentCount) {
+    public static ReviewResponse from(
+            Review review,
+            long likeCount,
+            long commentCount,
+            boolean likedByUser
+    ) {
         return new ReviewResponse(
                 review.getId(),
                 review.getContent(),
@@ -29,7 +35,8 @@ public record ReviewResponse(
                 review.getCreatedAt(),
                 review.getUpdatedAt(),
                 likeCount,
-                commentCount
+                commentCount,
+                likedByUser
         );
     }
 }

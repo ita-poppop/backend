@@ -6,6 +6,7 @@ import com.example.poppop.domain.mypage.dto.request.ProfileUpdateRequest;
 import com.example.poppop.domain.mypage.dto.response.ProfileResponseDto;
 import com.example.poppop.domain.mypage.error.MemberErrorCode;
 import com.example.poppop.domain.popup.entity.Popup;
+import com.example.poppop.domain.review.entity.ReviewImage;
 import com.example.poppop.domain.review.repository.ReviewLikeRepository;
 import com.example.poppop.domain.review.repository.ReviewRepository;
 import com.example.poppop.global.auth.model.PopPopOAuth2User;
@@ -82,13 +83,21 @@ public class ProfileServiceImpl implements ProfileService {
         long totalLikes   = reviewLikeRepository.sumLikesByMember(member);
 
         Pageable pageable = PageRequest.of(page - 1, size, Sort.by("createdAt").descending());
+
         List<ProfileResponseDto.ProfileReviewDto> reviews =
                 reviewRepository
                         .findByMemberAndIsDeletedFalseOrderByCreatedAtDesc(member, pageable).stream()
                         .map(review -> {
                             Popup popup = review.getPopup();
+                            List<String> reviewImageUrls = review.getImages().stream()
+                                    .map(ReviewImage::getUrl)
+                                    .toList();
+
                             return new ProfileResponseDto.ProfileReviewDto(
                                     review.getId(),
+                                    popup.getId(),
+                                    review.getContent(),
+                                    reviewImageUrls,
                                     popup.getImage(),
                                     popup.getTitle(),
                                     popup.getStartDate(),

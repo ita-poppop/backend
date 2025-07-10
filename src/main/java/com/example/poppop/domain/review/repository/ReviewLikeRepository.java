@@ -22,5 +22,7 @@ public interface ReviewLikeRepository extends JpaRepository<ReviewLike, Long> {
            AND rl.liked = true
     """)
     long sumLikesByMember(@Param("member") Member member);
+
+    boolean existsByReviewAndMemberAndLikedTrue(Review review, Member member);
 }
 

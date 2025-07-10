@@ -12,6 +12,9 @@ public record ProfileResponseDto(
 ) {
     public record ProfileReviewDto(
             Long reviewId,
+            Long popupId,
+            String reviewContent,
+            List<String> reviewImageUrls,
             String popupImageUrl,  // 팝업 대표 이미지 (리뷰와 연결된 팝업의 이미지)
             String popupTitle,
             LocalDate startDate,
