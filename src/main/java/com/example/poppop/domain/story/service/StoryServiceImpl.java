@@ -71,6 +71,7 @@ public class StoryServiceImpl implements StoryService {
                     boolean isRead = readRepository.existsByStoryAndMember(story, memberRepository.getReferenceById(oauth2User.getMemberId()));
                     return new StorySummaryResponse(
                             story.getId(),
+                            story.getPopup().getId(),
                             story.getPhotoUrl(),
                             story.getEstimatedWaitTime(),
                             story.getEstimatedWaitCount(),

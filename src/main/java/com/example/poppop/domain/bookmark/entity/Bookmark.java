@@ -2,6 +2,7 @@ package com.example.poppop.domain.bookmark.entity;
 
 import com.example.poppop.domain.member.entity.Member;
 import com.example.poppop.domain.popup.entity.Popup;
+import com.example.poppop.global.entity.BaseEntity;
 import jakarta.persistence.*;
 import lombok.AccessLevel;
 import lombok.Getter;
@@ -17,7 +18,7 @@ import lombok.NoArgsConstructor;
 )
 @Getter
 @NoArgsConstructor(access = AccessLevel.PROTECTED)
-public class Bookmark {
+public class Bookmark extends BaseEntity {
 
     @Id @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
