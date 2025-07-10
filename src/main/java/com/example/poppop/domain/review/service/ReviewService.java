@@ -12,9 +12,9 @@ import java.util.List;
 public interface ReviewService {
 
     void create(Long popupId, ReviewCreateRequest dto, PopPopOAuth2User oauth2User);
-    List<ReviewResponse> findAllByPopup(Long popupId, int page, int size);
+    List<ReviewResponse> findAllByPopup(Long popupId, int page, int size, PopPopOAuth2User oauth2User);
     void update(Long reviewId, ReviewUpdateRequest dto, PopPopOAuth2User oauth2User);
     void delete(Long reviewId, PopPopOAuth2User oauth2User);
-    ReviewDetailResponse findOneReview(Long popupId, Long reviewId);
+    ReviewDetailResponse findOneReview(Long popupId, Long reviewId, PopPopOAuth2User oauth2User);
 }
 

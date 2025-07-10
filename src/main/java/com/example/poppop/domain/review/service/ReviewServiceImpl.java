@@ -1,7 +1,6 @@
 package com.example.poppop.domain.review.service;
 
 import com.example.poppop.domain.comment.repository.CommentRepository;
-import com.example.poppop.domain.member.entity.CustomOAuth2User;
 import com.example.poppop.domain.member.entity.Member;
 import com.example.poppop.domain.member.repository.MemberRepository;
 import com.example.poppop.domain.popup.entity.Popup;
@@ -68,7 +67,7 @@ public class ReviewServiceImpl implements ReviewService {
     }
 
     @Override
-    public List<ReviewResponse> findAllByPopup(Long popupId, int page, int size) {
+    public List<ReviewResponse> findAllByPopup(Long popupId, int page, int size, PopPopOAuth2User oauth2User) {
 
         Popup popup = popupRepository.findById(popupId)
                 .orElseThrow(() -> new CustomException(ReviewErrorCode.POPUP_NOT_FOUND));
@@ -81,12 +80,15 @@ public class ReviewServiceImpl implements ReviewService {
                 .map(review -> {
                     long likeCount = reviewLikeRepository.countByReviewAndLikedTrue(review);
                     long commentCount = commentRepository.countByReviewAndParentIsNullAndIsDeletedFalse(review);
-                    return ReviewResponse.from(review, likeCount, commentCount);
+                    Member member = memberRepository.getReferenceById(oauth2User.getMemberId());
+                    boolean likedByUser = reviewLikeRepository
+                            .existsByReviewAndMemberAndLikedTrue(review, member);
+                    return ReviewResponse.from(review, likeCount, commentCount, likedByUser);
                 }).toList();
     }
 
     @Override
-    public ReviewDetailResponse findOneReview(Long popupId, Long reviewId) {
+    public ReviewDetailResponse findOneReview(Long popupId, Long reviewId, PopPopOAuth2User oauth2User) {
         Popup popup = popupRepository.findById(popupId)
                 .orElseThrow(() -> new CustomException(ReviewErrorCode.POPUP_NOT_FOUND));
 
@@ -104,7 +106,12 @@ public class ReviewServiceImpl implements ReviewService {
         long commentCount = commentRepository
                 .countByReviewAndParentIsNullAndIsDeletedFalse(review);
 
-        return ReviewDetailResponse.from(review, likeCount, commentCount);
+        // 로그인 사용자 좋아요 여부
+        Member member = memberRepository.getReferenceById(oauth2User.getMemberId());
+        boolean likedByUser = reviewLikeRepository
+                .existsByReviewAndMemberAndLikedTrue(review, member);
+
+        return ReviewDetailResponse.from(review, likeCount, commentCount, likedByUser);
     }
 
 //    @Override

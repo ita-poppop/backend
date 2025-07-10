@@ -43,19 +43,21 @@ public class ReviewController {
     public ApiResponse<List<ReviewResponse>> getReviews(
             @PathVariable Long popupId,
             @RequestParam @Valid Integer page,
-            @RequestParam @Valid Integer size) {
+            @RequestParam @Valid Integer size,
+            @AuthenticationPrincipal PopPopOAuth2User oauth2User) {
 
-        return ApiResponse.success(reviewService.findAllByPopup(popupId, page, size));
+        return ApiResponse.success(reviewService.findAllByPopup(popupId, page, size, oauth2User));
     }
 
     @GetSingleReview
     @GetMapping("/{reviewId}")
     public ApiResponse<ReviewDetailResponse> getReview(
             @PathVariable Long popupId,
-            @PathVariable Long reviewId) {
+            @PathVariable Long reviewId,
+            @AuthenticationPrincipal PopPopOAuth2User oauth2User) {
 
         return ApiResponse.success(
-                reviewService.findOneReview(popupId, reviewId)
+                reviewService.findOneReview(popupId, reviewId, oauth2User)
         );
     }
 
