@@ -29,7 +29,7 @@ public class PopupController {
             @PathVariable Long popupId,
             @AuthenticationPrincipal PopPopOAuth2User user
     ) {
-        PopupDetailDto detailPopup = popupService.getDetailPopup(popupId);
+        PopupDetailDto detailPopup = popupService.getDetailPopup(popupId,user);
         popupService.incrementViewCount(popupId, user);
         return ApiResponse.success(detailPopup);
     }

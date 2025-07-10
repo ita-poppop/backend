@@ -13,9 +13,10 @@ public class PopupDetailDto {
     private String date; //startDate랑 endDate조합해서 만들어주기
     private String comment;
     private String detail;
+    private boolean bookmarked;
 
     @Builder
-    public PopupDetailDto(Long id, String title, String imageUrl, String location, String date, String comment, String detail) {
+    public PopupDetailDto(Long id, String title, String imageUrl, String location, String date, String comment, String detail, boolean bookmarked) {
         this.id = id;
         this.title = title;
         this.imageUrl = imageUrl;
@@ -23,9 +24,10 @@ public class PopupDetailDto {
         this.date = date;
         this.comment = comment;
         this.detail = detail;
+        this.bookmarked = bookmarked;
     }
 
-    public static PopupDetailDto from(Popup popup) {
+    public static PopupDetailDto from(Popup popup, boolean bookmarked) {
         return PopupDetailDto.builder()
                 .id(popup.getId())
                 .title(popup.getTitle())
@@ -34,6 +36,7 @@ public class PopupDetailDto {
                 .date(popup.getStartDate() + " ~ " + popup.getEndDate())
                 .comment(popup.getComment())
                 .detail(popup.getDetail())
+                .bookmarked(bookmarked)
                 .build();
     }
 }

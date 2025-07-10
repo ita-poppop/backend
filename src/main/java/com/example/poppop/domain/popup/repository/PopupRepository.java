@@ -25,6 +25,8 @@ public interface PopupRepository extends JpaRepository<Popup, Long> {
     @Query("SELECT p FROM Popup p WHERE p.title LIKE CONCAT('%', :title, '%') ORDER BY p.startDate ASC")
     List<Popup> findSearchedPopups(@Param("title") String title, Pageable pageable);
 
+
+
     @Query(
             value = "SELECT *, (6371 * acos(cos(radians(:lat)) * cos(radians(latitude)) * cos(radians(longitude) - radians(:lng)) + sin(radians(:lat)) * sin(radians(latitude)))) AS distance " +
                     "FROM popup " +

@@ -1,5 +1,6 @@
 package com.example.poppop.domain.popup.service;
 
+import com.example.poppop.domain.bookmark.repository.BookmarkRepository;
 import com.example.poppop.domain.member.service.MemberService;
 import com.example.poppop.domain.popup.dto.*;
 import com.example.poppop.domain.popup.entity.Popup;
@@ -27,6 +28,7 @@ import java.time.LocalDate;
 import java.util.Arrays;
 import java.util.Collections;
 import java.util.List;
+import java.util.Set;
 import java.util.stream.Collectors;
 
 @Service
@@ -41,43 +43,36 @@ public class PopupService {
     private final JwtService jwtService;
     private final MemberService memberService;
     private final PopupGeoService popupGeoService;
+    private final BookmarkRepository bookmarkRepository;
 
-    // 팝업 상세 조회
-    public PopupDetailDto getDetailPopup(Long id) {
-        Popup DetailPopup = popupRepository.findById(id)
+    public PopupDetailDto getDetailPopup(Long popupId, PopPopOAuth2User user) {
+        Long memberId = user.getMemberId();
+        Popup DetailPopup = popupRepository.findById(popupId)
                 .orElseThrow(() -> new CustomException(GlobalErrorCode.NOT_FOUND));
-        return PopupDetailDto.from(DetailPopup);
+        boolean bookmarked = bookmarkRepository.existsByMemberIdAndPopupId(memberId, popupId);
+
+        return PopupDetailDto.from(DetailPopup,bookmarked);
     }
 
     @Transactional
     public void incrementViewCount(Long popupId, PopPopOAuth2User user) {
-        Long memberId = user.getMemberId();
-        String strMemberId = String.valueOf(memberId);
+        String memberId = String.valueOf(user.getMemberId());
         String strPopupId = String.valueOf(popupId);
 
-        String visitedPopupIds = popupRedisService.getValue(strMemberId);
-        if(visitedPopupIds==null){
-            popupRedisService.setDateExpire("member:"+strMemberId,strPopupId+"_",calculateTimeOut(3));
-            popupRedisService.addViewCountInRedis(strPopupId);
-        }else{
-            String[] strArray = visitedPopupIds.split("_");
-            List<String> redisPopupList = Arrays.asList(strArray);
-            boolean isView = false;
-            if (!redisPopupList.isEmpty()) {
-                for (String redisPopupId : redisPopupList) {
-                    if(strPopupId.equals(redisPopupId)){
-                        isView = true;
-                        break;
-                    }
-                }
-                if(!isView){
-                    popupRedisService.appendValues(strMemberId,strPopupId + "_"); // 1_2_3_
-                    popupRedisService.addViewCountInRedis(strPopupId);
-                }
-            }
+        handlePopupView(memberId, strPopupId);
+    }
+
+    private void handlePopupView(String memberId, String popupId) {
+        String key = "member:" + memberId + ":popup:" + popupId;
+        boolean alreadyViewd = popupRedisService.hasKey(key);
+
+        if(!alreadyViewd) {
+            popupRedisService.setDateExpire(key, "1", Duration.ofMinutes(3));
+            popupRedisService.incrementViewCount(popupId);
+            popupRedisService.addPopupIdToSet(popupId);
         }
     }
-    //1시간에 한번씩 reids에 저장된 팝업별 조회수를 mysql에 반영하고, redis 데이터는 삭제
+
     @Transactional
     @Scheduled(cron = "0 0 * * * *", zone = "Asia/Seoul")
     public void syncViewCount() {
@@ -90,6 +85,7 @@ public class PopupService {
             popup.increaseViewCount(viewCount);
         }
     }
+
     // 오픈예정 팝업 조회
     // :todo: @CacheEvic 시간 남으면 추가 현재 팝업이 수정되거나 삭제되지는 않을거 같음
     @Cacheable(
