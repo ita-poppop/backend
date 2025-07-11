@@ -42,6 +42,12 @@ jobs:
       # 1) 소스 체크아웃 + JAR 빌드
       - uses: actions/checkout@v3
 
+      - name: Restore firebase_service_key.json
+        run: |
+          cat << 'EOF' > firebase_service_key.json
+          ${{ secrets.FIREBASE_SERVICE_KEY_JSON }}
+          EOF
+
       - name: Set up JDK
         uses: actions/setup-java@v3
         with:
@@ -81,7 +87,7 @@ jobs:
           host: ${{ secrets.EC2_HOST }}
           username: ${{ secrets.EC2_USER }}
           key: ${{ secrets.EC2_SSH_KEY }}
-          source: "compose.yml,nginx/poppop.conf"
+          source: "compose.yml,nginx/poppop.conf,firebase_service_key.json"
           target: "~/poppop"
 
       # 4) EC2로 배포 (compose pull/up)
