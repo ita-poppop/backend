@@ -9,7 +9,6 @@ import com.example.poppop.domain.comment.error.CommentErrorCode;
 import com.example.poppop.domain.comment.event.CommentCreatedEvent;
 import com.example.poppop.domain.comment.event.ReplyCreatedEvent;
 import com.example.poppop.domain.comment.repository.CommentRepository;
-import com.example.poppop.domain.member.entity.CustomOAuth2User;
 import com.example.poppop.domain.member.entity.Member;
 import com.example.poppop.domain.member.repository.MemberRepository;
 import com.example.poppop.domain.review.entity.Review;
@@ -65,11 +64,11 @@ public class CommentServiceImpl implements CommentService {
         commentRepository.save(comment);
 
         // 이벤트 발행 (루트 댓글 vs 대댓글 구분)
-//        if (comment.getParent() == null) {
-//            publisher.publishEvent(new CommentCreatedEvent(this, comment));
-//        } else {
-//            publisher.publishEvent(new ReplyCreatedEvent(this, comment));
-//        }
+        if (comment.getParent() == null) {
+            publisher.publishEvent(new CommentCreatedEvent(this, comment));
+        } else {
+            publisher.publishEvent(new ReplyCreatedEvent(this, comment));
+        }
     }
 
     @Override
