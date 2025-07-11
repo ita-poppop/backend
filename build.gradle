@@ -50,7 +50,7 @@ dependencies {
     implementation platform('software.amazon.awssdk:bom:2.27.21')
     implementation 'software.amazon.awssdk:s3'
     // fcm
-    implementation 'com.google.firebase:firebase-admin:9.1.1'
+    implementation 'com.google.firebase:firebase-admin:11.2.0'
     // validator
     implementation 'org.springframework.boot:spring-boot-starter-validation'
 
