@@ -18,14 +18,12 @@ public interface PopupRepository extends JpaRepository<Popup, Long> {
     @Query("SELECT p FROM Popup p WHERE p.startDate BETWEEN :now AND :end order by p.startDate asc")
     List<Popup> findPlannedPopups(@Param("now") LocalDate now, @Param("end") LocalDate end , Pageable pageable);
 
-    @Query("select p FROM Popup p order by p.viewCount desc")
+    @Query("select p FROM Popup p WHERE p.startDate <= CURRENT_DATE AND p.endDate >= CURRENT_DATE order by p.viewCount desc")
     List<Popup> findTrendPopups(Pageable pageable);
 
     // 팝업 제목으로 검색 (부분 일치)
     @Query("SELECT p FROM Popup p WHERE p.title LIKE CONCAT('%', :title, '%') ORDER BY p.startDate ASC")
     List<Popup> findSearchedPopups(@Param("title") String title, Pageable pageable);
-
-
 
     @Query(
             value = "SELECT *, (6371 * acos(cos(radians(:lat)) * cos(radians(latitude)) * cos(radians(longitude) - radians(:lng)) + sin(radians(:lat)) * sin(radians(latitude)))) AS distance " +

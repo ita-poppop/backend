@@ -28,7 +28,7 @@ public class Popup {
     private String image;
     private String location;
     @Column(nullable = true)
-    private Integer viewCount;
+    private int viewCount;
     @Column(precision = 10, scale = 7)
     private BigDecimal latitude;
     @Column(precision = 10, scale = 7)
