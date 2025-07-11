@@ -42,6 +42,7 @@ public class ReviewLikeServiceImpl implements ReviewLikeService {
                 .orElseGet(() -> reviewLikeRepository.save(ReviewLike.of(member, review)));
 
         like.toggle();
+        log.debug("▶▶▶ like 상태 변경됨: liked={}", like.getLiked());
         long cnt = reviewLikeRepository.countByReviewAndLikedTrue(review);
 
         if (like.getLiked()
