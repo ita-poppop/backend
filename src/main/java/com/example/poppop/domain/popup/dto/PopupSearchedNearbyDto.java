@@ -14,15 +14,17 @@ public class PopupSearchedNearbyDto {
     private String imageUrl;
     private String title;
     private String date;
+    private String location;
 
     @Builder
-    public PopupSearchedNearbyDto(BigDecimal latitude, BigDecimal longitude, Long id, String imageUrl, String title, String date) {
+    public PopupSearchedNearbyDto(BigDecimal latitude, BigDecimal longitude, Long id, String imageUrl, String title, String date, String location) {
         this.latitude = latitude;
         this.longitude = longitude;
         this.id = id;
         this.imageUrl = imageUrl;
         this.title = title;
         this.date = date;
+        this.location = location;
     }
 
     public static PopupSearchedNearbyDto from(Popup popup) {
@@ -33,6 +35,7 @@ public class PopupSearchedNearbyDto {
                 .title(popup.getTitle())
                 .imageUrl(popup.getImage())
                 .date(popup.getStartDate() + " ~ " + popup.getEndDate())
+                .location(popup.getLocation())
                 .build();
     }
 }
