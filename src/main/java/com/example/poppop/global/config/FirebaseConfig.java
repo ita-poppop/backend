@@ -21,8 +21,17 @@ public class FirebaseConfig {
     public FirebaseApp firebaseApp() throws IOException {
         FileInputStream serviceAccount = new FileInputStream(serviceAccountPath);
 
+//        FirebaseOptions options = FirebaseOptions.builder()
+//                .setCredentials(GoogleCredentials.fromStream(serviceAccount))
+//                .build();
+//
+//        return FirebaseApp.initializeApp(options);
+        GoogleCredentials credentials = GoogleCredentials.fromStream(serviceAccount);
+
         FirebaseOptions options = FirebaseOptions.builder()
-                .setCredentials(GoogleCredentials.fromStream(serviceAccount))
+                .setCredentials(credentials)
+                // JSON의 project_id 값을 그대로 넣어 줍니다
+                .setProjectId("poppop-6d345")
                 .build();
 
         return FirebaseApp.initializeApp(options);
