@@ -27,8 +27,17 @@ public class NotificationService {
      * - 예외는 구체적으로 분기하여 처리
      */
     public BatchResponse sendToMember(Long memberId, String title, String body, Map<String, String> data) {
+        log.info("▶▶▶ sendToMember 호출됨: memberId={}, title='{}', body='{}', data={}", memberId, title, body, data);
+
         List<DeviceToken> tokens = tokenRepository.findAllByMember(
                 memberRepository.getReferenceById(memberId));
+
+        // 전송 대상 토큰 개수 로깅
+        log.debug("▶▶▶ FCM 전송 대상 토큰 개수={}", tokens.size());
+        if (tokens.isEmpty()) {
+            log.debug("▶▶▶ 등록된 FCM 토큰이 없어 전송을 생략합니다.");
+            return null;
+        }
 
         if (tokens.isEmpty()) return null;
 
@@ -47,6 +56,10 @@ public class NotificationService {
 
         try {
             BatchResponse response = fcm.sendMulticast(message);
+
+            // 전송 결과 로깅
+            log.debug("▶▶▶ FCM 응답 - 성공: {}건, 실패: {}건",
+                    response.getSuccessCount(), response.getFailureCount());
 
             // 각 토큰별 전송 결과에 대해 구체적으로 예외 처리
             List<SendResponse> responses = response.getResponses();
