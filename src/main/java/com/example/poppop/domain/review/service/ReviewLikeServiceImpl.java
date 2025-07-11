@@ -13,6 +13,7 @@ import com.example.poppop.domain.review.repository.ReviewRepository;
 import com.example.poppop.global.auth.model.PopPopOAuth2User;
 import com.example.poppop.global.error.exception.CustomException;
 import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.context.ApplicationEventPublisher;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -20,6 +21,7 @@ import org.springframework.transaction.annotation.Transactional;
 @Service
 @RequiredArgsConstructor
 @Transactional
+@Slf4j
 public class ReviewLikeServiceImpl implements ReviewLikeService {
 
     private final ReviewLikeRepository reviewLikeRepository;
@@ -44,7 +46,9 @@ public class ReviewLikeServiceImpl implements ReviewLikeService {
 
         if (like.getLiked()
                 && !review.getMember().getId().equals(member.getId())) {
+            log.debug("▶▶▶ ReviewLikedEvent 발행 직전: reviewLike id={}", like.getId());
             publisher.publishEvent(new ReviewLikedEvent(this, like));
+            log.debug("▶▶▶ ReviewLikedEvent 발행 완료");
         }
 
         return new ReviewLikeResponse(like.getLiked(), cnt);
