@@ -54,6 +54,12 @@ jobs:
       - name: Build
         run: ./gradlew build
 
+      - name: Create Firebase key file
+        run: |
+          mkdir -p src/main/resources
+          echo "${{ secrets.FIREBASE_SERVICE_KEY_JSON }}" \
+            > src/main/resources/firebase_service_key.json
+
       # 2) 도커 이미지 빌드 → Docker Hub 푸시
       - name: Build Docker image
         run: docker build -t $IMAGE_NAME .
