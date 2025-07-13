@@ -11,10 +11,19 @@ public record ReviewResponse(
         String content,
         List<String> imageUrls,
         String writerName,
+        String writerProfileUrl,
         LocalDateTime createdAt,
-        LocalDateTime updatedAt
+        LocalDateTime updatedAt,
+        long likeCount,
+        long commentCount,
+        boolean likedByUser
 ) {
-    public static ReviewResponse from(Review review) {
+    public static ReviewResponse from(
+            Review review,
+            long likeCount,
+            long commentCount,
+            boolean likedByUser
+    ) {
         return new ReviewResponse(
                 review.getId(),
                 review.getContent(),
@@ -22,8 +31,12 @@ public record ReviewResponse(
                         .map(ReviewImage::getUrl)
                         .toList(),
                 review.getMember().getUserName(),
+                review.getMember().getProfileUrl(),
                 review.getCreatedAt(),
-                review.getUpdatedAt()
+                review.getUpdatedAt(),
+                likeCount,
+                commentCount,
+                likedByUser
         );
     }
 }

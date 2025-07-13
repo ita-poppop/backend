@@ -1,8 +1,10 @@
 package com.example.poppop.domain.popup.dto;
 
 import com.example.poppop.domain.popup.entity.Popup;
+import lombok.AccessLevel;
 import lombok.Builder;
 import lombok.Getter;
+import lombok.NoArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 
 import java.time.LocalDate;
@@ -11,20 +13,21 @@ import java.time.temporal.ChronoUnit;
 
 @Getter
 @Slf4j
+@NoArgsConstructor(access = AccessLevel.PROTECTED)
 public class PopupPlannedDto {
     private long id;
     private String title;
     private String image;
     private String location; // 서울 성수동까지만
-    private String dDay;
+    private String dday;
 
     @Builder
-    public PopupPlannedDto(Long id, String title, String image, String location, String dDay) {
+    public PopupPlannedDto(Long id, String title, String image, String location, String dday) {
         this.id = id;
         this.title = title;
         this.image = image;
         this.location = location;
-        this.dDay = dDay;
+        this.dday = dday;
     }
 
     public static PopupPlannedDto from(Popup popup) {
@@ -33,15 +36,14 @@ public class PopupPlannedDto {
                 .title(popup.getTitle())
                 .image(popup.getImage())
                 .location(extractLocation(popup.getLocation()))
-                .dDay(createDday(popup.getStartDate()))
+                .dday(createDday(popup.getStartDate()))
                 .build();
     }
 
-    private static String createDday(String startDate) {
+    private static String createDday(LocalDate startDate) {
         LocalDate today = LocalDate.now(); //2025-05-20
-        LocalDate startDatePars = LocalDate.parse(startDate, DateTimeFormatter.ofPattern("yyyy-MM-dd"));
-        long dDay = ChronoUnit.DAYS.between(today, startDatePars);
-        return String.valueOf(dDay);
+        long dday = ChronoUnit.DAYS.between(today, startDate);
+        return String.valueOf(dday);
     }
 
     private static String extractLocation(String location) {

@@ -9,12 +9,14 @@ import lombok.NoArgsConstructor;
 @Getter
 @NoArgsConstructor(access = AccessLevel.PROTECTED)
 public class PopupTrendDto {
+    private Long id;
     private String title;
     private String imageUrl;
     private String location;
 
     @Builder
-    public PopupTrendDto(String title, String imageUrl, String location) {
+    public PopupTrendDto(Long id,String title, String imageUrl, String location) {
+        this.id = id;
         this.title = title;
         this.imageUrl = imageUrl;
         this.location = location;
@@ -22,6 +24,7 @@ public class PopupTrendDto {
 
     public static PopupTrendDto from(Popup popup) {
         return PopupTrendDto.builder()
+                .id(popup.getId())
                 .title(popup.getTitle())
                 .imageUrl(popup.getImage())
                 .location(extractLocation(popup.getLocation()))

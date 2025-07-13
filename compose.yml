@@ -1,39 +1,83 @@
 services:
-  my-server:
-    build: .
+  ita-backend:
+    image: "${DOCKERHUB_USERNAME}/ita-backend:latest"
+    #build: .
+    container_name: ita-backend
+    restart: always
     ports:
-      - 8080:8080
+      - "8080:8080"
+    environment: # GitHub Secrets → SSH envs 로 넘길 예정
+      - MYSQLDB_USERNAME=${MYSQLDB_USERNAME}
+      - MYSQLDB_PASSWORD=${MYSQLDB_PASSWORD}
+      - MYSQLDB_ROOT_PASSWORD=${MYSQLDB_ROOT_PASSWORD}
+      - GEOCODING_ID=${GEOCODING_ID}
+      - GEOCODING_SECRET=${GEOCODING_SECRET}
+      - AWS_S3_ACCESS_KEY=${AWS_S3_ACCESS_KEY}
+      - AWS_S3_SECRET_KEY=${AWS_S3_SECRET_KEY}
+    volumes:
+      - ./firebase_service_key.json:/src/main/resources/firebase_service_key.json:ro
     # my-db의 컨테이너가 생성되고 healthy 하다고 판단 될 때, 해당 컨테이너를 생성한다.
     depends_on:
-      poppop-db:
-        condition: service_healthy
+#      poppop-db:
+#        condition: service_healthy
       poppop-cache:
         condition: service_healthy
+    networks:
+      - default
 
-  poppop-db:
-    image: mysql
-    container_name: poppop-mysql
-    restart: always
-    environment:
-      MYSQL_ROOT_PASSWORD: ${MYSQLDB_ROOT_PASSWORD}
-      MYSQL_DATABASE: "poppop"
-      MYSQL_USER: ${MYSQLDB_USERNAME}
-      MYSQL_PASSWORD: ${MYSQLDB_PASSWORD}
-      TZ: "Asia/Seoul" # MySQL 최초 실행 시 mydb라는 데이터베이스를 생성해준다.
-    volumes:
-      - ./mysql_data:/var/lib/mysql
-    ports:
-      - 3307:3306
-    healthcheck:
-      test: [ "CMD", "mysqladmin", "ping" ] # MySQL이 healthy 한 지 판단할 수 있는 명령어
-      interval: 5s # 5초 간격으로 체크
-      retries: 10 # 10번까지 재시도
+#  poppop-db:
+#    image: mysql
+#    container_name: poppop-mysql
+#    restart: always
+#    environment:
+#      MYSQL_ROOT_PASSWORD: ${MYSQLDB_ROOT_PASSWORD}
+#      MYSQL_DATABASE: "poppop"
+#      MYSQL_USER: ${MYSQLDB_USERNAME}
+#      MYSQL_PASSWORD: ${MYSQLDB_PASSWORD}
+#      TZ: "Asia/Seoul" # MySQL 최초 실행 시 mydb라는 데이터베이스를 생성해준다.
+#    volumes:
+#      - ./mysql_data:/var/lib/mysql
+#    ports:
+#      - 3307:3306
+#    healthcheck:
+#      test: [ "CMD", "mysqladmin", "ping" ] # MySQL이 healthy 한 지 판단할 수 있는 명령어
+#      interval: 5s # 5초 간격으로 체크
+#      retries: 10 # 10번까지 재시도
 
   poppop-cache:
     image: redis
     ports:
       - 6379:6379
+    volumes:
+      - ./redis-data:/data
     healthcheck:
       test: [ "CMD", "redis-cli", "ping" ]
       interval: 5s
       retries: 10
+    networks:
+      - default
+
+  nginx:
+    image: nginx:latest
+    container_name: ita-nginx
+    restart: always
+    ports:
+      # 외부 80번 포트를 nginx 컨테이너의 80번 포트로 포워딩
+      - "80:80"
+      - "443:443"
+    depends_on:
+      - ita-backend
+    volumes:
+      # 1) 기본 default.conf를 아예 빈 파일로 대체
+      - /dev/null:/etc/nginx/conf.d/default.conf:ro
+      # 2) 우리 poppop.conf만 추가
+      # 위에서 만든 nginx 설정 파일을 컨테이너에 마운트
+      - ./nginx/poppop.conf:/etc/nginx/conf.d/poppop.conf:ro
+      # ← 인증서 전체를 로드
+      - /etc/letsencrypt:/etc/letsencrypt:ro
+    networks:
+      - default
+
+networks:
+  default:
+    driver: bridge

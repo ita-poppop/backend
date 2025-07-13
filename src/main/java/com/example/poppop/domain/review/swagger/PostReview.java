@@ -1,5 +1,6 @@
 package com.example.poppop.domain.review.swagger;
 
+import com.example.poppop.domain.review.dto.request.ReviewCreateRequest;
 import com.example.poppop.global.common.ApiResponse;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.media.Content;
@@ -13,7 +14,13 @@ import java.lang.annotation.RetentionPolicy;
 @Retention(RetentionPolicy.RUNTIME)
 @Operation(
         summary     = "리뷰 등록",
-        description = "popupId 경로 변수와 리뷰 본문·이미지 정보를 받아 새 리뷰를 작성합니다."
+        description = "popupId 경로 변수와 리뷰 본문·이미지 정보를 받아 새 리뷰를 작성합니다.",
+        requestBody = @io.swagger.v3.oas.annotations.parameters.RequestBody(
+                content = @Content(
+                        mediaType = MediaType.MULTIPART_FORM_DATA_VALUE,
+                        schema    = @Schema(implementation = ReviewCreateRequest.class)
+                )
+        )
 )
 @ApiResponses({
         @io.swagger.v3.oas.annotations.responses.ApiResponse(

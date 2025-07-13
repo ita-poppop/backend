@@ -52,11 +52,21 @@ public class PopupGeoService {
             ObjectMapper objectMapper = new ObjectMapper();
             JsonNode root = objectMapper.readTree(response.getBody());
             JsonNode addresses = root.path("addresses");
+
             if (addresses != null && addresses.isArray() && addresses.size() > 0) {
                 JsonNode addr = addresses.get(0);
                 String x = addr.path("x").asText();
                 String y = addr.path("y").asText();
-                return new BigDecimal[]{new BigDecimal(x), new BigDecimal(y)};
+
+                if (x == null || x.isEmpty() || y == null || y.isEmpty()) {
+                    throw new RuntimeException("좌표 값이 비어있음 - 주소: " + address + ", x: " + x + ", y: " + y);
+                }
+
+                try {
+                    return new BigDecimal[]{new BigDecimal(x), new BigDecimal(y)};
+                } catch (NumberFormatException e) {
+                    throw new RuntimeException("좌표 값 변환 실패 - 주소: " + address + ", x: " + x + ", y: " + y, e);
+                }
             }
         } catch (Exception e) {
             throw new RuntimeException("네이버 Geocoding API 호출/파싱 오류", e);
@@ -69,23 +79,24 @@ public class PopupGeoService {
     public void batchPopup() {
         List<Popup> popups = popupRepository.findAll();
         for(Popup popup : popups){
+            // 이미 위경도가 있으면 건너뜀
+            if (popup.getLatitude() != null && popup.getLongitude() != null) {
+                continue;
+            }
+
             try {
                 BigDecimal[] latLng = getLatLng(popup.getLocation());
                 if (latLng != null && latLng.length > 1) {
-                    popup.setLatitude(latLng[0]);
-                    popup.setLongitude(latLng[1]);
-                } else {
-                    //log.warn("위경도 변환 실패: id={}, 주소={}", popup.getId(), popup.getLocation());
+                    popup.setLongitude(latLng[0]); // 경도 x
+                    popup.setLatitude(latLng[1]); // 위도 y
+                    log.info("id={}, lat={}, lng={}", popup.getId(), latLng[1], latLng[0]);
                 }
             } catch (Exception e) {
-                //log.error("예외 발생: id={}, 주소={}, error={}", popup.getId(), popup.getLocation(), e.getMessage());
+                log.error("예외 발생: id={}, 주소={}, error={}", popup.getId(), popup.getLocation(), e.getMessage());
             }
         }
-        log.info("팝업 위도/경도 변환 완료");
         // 트랜잭션 종료 시 JPA Dirty Checking으로 DB에 자동 반영
     }
-
-    //
 
 }
 

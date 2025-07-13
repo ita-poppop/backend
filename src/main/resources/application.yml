@@ -1,17 +1,28 @@
 # 추가 예시(필요에 따라 사용)
 server:
+  forward-headers-strategy: framework
   port: 8080
 
 logging:
   level:
     org.hibernate.SQL: DEBUG
     org.hibernate.type.descriptor.sql.BasicBinder: TRACE
+    com.example.poppop: DEBUG
 
 spring:
   config:
     import: optional:file:.env[.properties]
   application:
     name: PopPop
+
+  jackson:
+    date-format: yyyy-MM-dd'T'HH:mm
+    time-zone: Asia/Seoul
+
+  servlet:
+    multipart:
+      max-file-size: 50MB
+      max-request-size: 100MB
 
   jpa:
     show-sql: true
@@ -24,17 +35,41 @@ spring:
 
   datasource:
     driver-class-name: com.mysql.cj.jdbc.Driver
-    #url: jdbc:mysql://my-db:3307/poppop
-    url: jdbc:mysql://poppop-db1.cf4c0w6gqo29.ap-northeast-2.rds.amazonaws.com:3306/poppop
+
+    #url: jdbc:mysql://poppop-db:3306/poppop
+    url: jdbc:mysql://poppop-db1.cf4c0w6gqo29.ap-northeast-2.rds.amazonaws.com:3306/poppop?serverTimezone=Asia/Seoul&useLegacyDatetimeCode=false
     username: ${MYSQLDB_USERNAME}
     password: ${MYSQLDB_PASSWORD}
 
   data:
     redis:
-      host: my-cache-server
+      host: poppop-cache
       port: 6379
+
+app:
+  data-init:
+    enabled: true  # 기본값을 false로 설정
 
 naver:
   geocoding:
-    client-id: 네이버 API Key ID
-    client-secret: 네이버 API Key
+    client-id: ${GEOCODING_ID}
+    client-secret: ${GEOCODING_SECRET}
+
+jwt:
+  access-tocken-expiration: 3600000
+  refresh-tocken-expiration: 1209600000
+  secret: 2f8d7e9a1b3c4d5e6f7g8h9i0j1k2l3m
+
+client:
+  url: http://localhost:3000
+
+aws:
+  s3:
+    bucket: ita-poppop-storybucket
+    region: ap-northeast-2
+    access-key: ${AWS_S3_ACCESS_KEY}
+    secret-key: ${AWS_S3_SECRET_KEY}
+
+firebase:
+  project-id: poppop-6d345
+  service-account-file: /src/main/resources/firebase_service_key.json

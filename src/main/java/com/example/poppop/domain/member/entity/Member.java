@@ -19,7 +19,7 @@ public class Member extends BaseEntity {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
-    @Column(name = "profile_url", length = 50)
+    @Column(name = "profile_url", length = 512)
     private String profileUrl;
 
     @Column(length = 50, nullable = false)
@@ -31,16 +31,33 @@ public class Member extends BaseEntity {
     @Column(name = "notification_set", nullable = false)
     private Boolean notificationSet = Boolean.TRUE;
 
+    private String providerId;
+
+    private String registerId;
+
+    private String nickName;
+
+    private String profileImage;
+
     @Builder
     private Member(String profileUrl,
                    String email,
                    String userName,
-                   Boolean notificationSet) {
+                   Boolean notificationSet,
+                   String providerId,
+                   String registerId,
+                   String nickName,
+                   String profileImage
+                   ) {
 
         this.profileUrl      = profileUrl;
         this.email           = email;
         this.userName        = userName;
         this.notificationSet = (notificationSet != null) ? notificationSet : Boolean.TRUE;
+        this.providerId     = providerId;
+        this.registerId      = registerId;
+        this.nickName      = nickName;
+        this.profileImage    = profileImage;
     }
 
     public void updateProfile(String newUrl, String newName) {
